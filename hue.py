@@ -77,13 +77,12 @@ class Control(polyglot.Controller):
         
         LOGGER.info('{} bulbs found. Checking status and adding to ISY if necessary.'.format(len(devices)))
 
-        for lamp_id, data in devices:
+        for lamp_id, data in devices.items():
             address = id_2_addr(data['uniqueid'])
             name = data['name']
             
             if not address in self.nodes:
                 if data['type'] == "Extended color light" or data['type'] == "Color Light":
-                    LOGGER.debug('Type: {}'.format(data['type']))
                     LOGGER.info('Found Color Bulb: {}({})'.format(name, address))
                     self.addNode(HueColorLight(self, self.address, address, name, lamp_id, data))
                 elif data['type'] == "Color temperature light":
@@ -91,7 +90,7 @@ class Control(polyglot.Controller):
                 elif data['type'] == "Dimmable Light":
                     LOGGER.info('Found Dimmable Bulb: {}({})'.format(name, address))
                 else:
-                    LOGGER.info('Found Unsupported Bulb: {}({})'.format(name, address))
+                    LOGGER.info('Found Unsupported {} Bulb: {}({})'.format(data['type'], name, address))
         
         LOGGER.info('Discovery complete')
         self.discovery = False
@@ -128,8 +127,8 @@ class Control(polyglot.Controller):
     """ Driver Details:
     GV1: Connected
     """
-    _commands = {'DISCOVER': discover}
-    node_def_id = 'HUB'
+    commands = {'DISCOVER': discover}
+    id = 'HUEBR'
 
 
 if __name__ == "__main__":

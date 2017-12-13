@@ -51,7 +51,7 @@ class HueColorLight(polyglot.Node):
         self.hue = data['state']['hue']
         self.saturation = data['state']['sat']
         self.colortemp = data['state']['ct']
-        self.reachable = date['state']['reachable']
+        self.reachable = data['state']['reachable']
         
         self.setDriver('GV1', self.color_x)
         self.setDriver('GV2', self.color_y)
@@ -154,13 +154,13 @@ class HueColorLight(polyglot.Node):
                 {'driver': 'RR', 'value': 0, 'uom': 42}
               ]
 
-    _commands = {
-                    'DON': setOn, 'DOF': setOff, 'QUERY': query,
-                    'SET_COLOR': setColor, 'SET_HUE': setManual,
-                    'SET_SAT': setManual, 'SET_BRI': setManual,
-                    'SET_KEL': setManual, 'SET_DEL': setManual,
-                    'SET_HSBKD': setHSBKD, 'SET_COLOR_RGB': setColorRGB,
-                    'SET_COLOR_XY': setColorXY
-                }
+    commands = {
+                   'DON': setOn, 'DOF': setOff, 'QUERY': query,
+                   'SET_COLOR': setColor, 'SET_HUE': setManual,
+                   'SET_SAT': setManual, 'SET_BRI': setManual,
+                   'SET_KEL': setManual, 'SET_DEL': setManual,
+                   'SET_HSBKD': setHSBKD, 'SET_COLOR_RGB': setColorRGB,
+                   'SET_COLOR_XY': setColorXY
+               }
 
-    node_def_id = 'COLOR_LIGHT'
+    id = 'COLOR_LIGHT'

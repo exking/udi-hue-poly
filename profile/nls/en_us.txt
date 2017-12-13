@@ -1,10 +1,12 @@
 # Hue Hub Labels
-ND-HUB-NAME = Philips Hue Hub
+ND-HUEBR-NAME = Philips Hue Hub
+ND-HUEBR-ICON = GenericCtl
 ST-HHUB-ST-NAME = Connected
 CMD-HHUB-DISCOVER-NAME = Re-Discover Bulbs
 
 # Color Light Labels
 ND-COLOR_LIGHT-NAME = Color Light
+ND-COLOR_LIGHT-ICON = Lamp
 ST-HCL-GV1-NAME = X
 ST-HCL-GV2-NAME = Y
 ST-HCL-GV3-NAME = Hue

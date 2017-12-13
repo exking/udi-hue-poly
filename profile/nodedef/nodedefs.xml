@@ -1,6 +1,6 @@
 <nodeDefs>
     <!-- Hub Node -->
-    <nodeDef id="HUB" nls="HHUB">
+    <nodeDef id="HUEBR" nls="HHUB">
         <editors />
         <sts />
             <st id="ST" editor="HCONNECT" />
