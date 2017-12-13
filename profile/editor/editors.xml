@@ -1,0 +1,43 @@
+<editors>
+
+    <!-- Bridge connected  -->
+    <editor id="HCONNECT">
+        <range uom="2" subset="0,1" />
+    </editor>
+
+    <!-- Color XY Value -->
+    <editor id="HCLXY">
+        <range uom="56" min="0" max="1" prec="4" />
+    </editor>
+
+    <!-- Color RGB Value -->
+    <editor id="HCLRGB">
+        <range uom="56" min="0" max="255" step="1" prec="0" />
+    </editor>
+
+    <!-- Brightness -->
+    <editor id="HCLST">
+        <range uom="51" min="0" max="100" prec="0" />
+    </editor>
+
+    <!-- Color Selector -->
+    <editor id="HCSEL">
+        <range uom="25" subset="1-24" nls="COLORS_HCSEL" />
+    </editor>
+    
+    <!-- Hue HSB Color Editor -->
+    <editor id="HCLHSB">
+        <range uom="56" min="0" max="65535" prec="0" step="1" />
+    </editor>
+    
+    <!-- Hue Kelvin Editor -->
+    <editor id="HKELVIN">
+        <range uom="26" min="0" max="65535" prec="0" step="1" />
+    </editor>
+    
+    <!-- Hue Duration Editor -->
+    <editor id="HDURATION">
+        <range uom="42" min="0" max="65535" prec="0" step="1" />
+    </editor>
+        
+</editors>
