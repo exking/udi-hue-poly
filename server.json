@@ -4,6 +4,8 @@
     "type": "python3",
     "executable": "hue.py",
     "install": "install.sh",
+    "shortPoll": "15",
+    "longPoll": "60",
     "description": "Connect Phillips Hue Personal Wireless Lighting system to the ISY994.",
     "notice": "\"Hue Personal Wireless Lighting\" is a trademark owned by Koninklijke Philips Electronics N.V., see www.meethue.com for more information. This Node Server is neither developed by nor endorsed by the Philips organization.",
     "credits": [

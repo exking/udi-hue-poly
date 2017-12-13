@@ -76,3 +76,9 @@ colors = {
 def color_xy(c_id):
     """ Lookup a color and return the XY values for that color. """
     return RGB_2_xy(*colors[c_id][1])
+
+def bri2st(bri):
+    return round(bri / 254. * 100., 4)
+
+def kel2mired(value):
+    return int(round(1e6 / value))

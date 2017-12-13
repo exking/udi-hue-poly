@@ -1,6 +1,6 @@
 """ Node classes used by the Hue Node Server. """
 
-from converters import RGB_2_xy, color_xy
+from converters import RGB_2_xy, color_xy, bri2st, kel2mired
 from functools import partial
 import json
 import polyinterface as polyglot
@@ -22,18 +22,17 @@ class HueColorLight(polyglot.Node):
         self.lamp_id = int(lamp_id)
         self.name = name
         self.on = None
-        self.brightness = None
-        self.colormode = None
+        self.st = None
         self.hue = None
         self.saturation = None
+        self.brightness = None
         self.color_x = None
         self.color_y = None
-        self.colortemp = None
+        self.ct = None
         self.effect = None
         self.alert = None
         self.transitiontime = None
         self.reachable = None
-        self.color = []
 
     def start(self):
         self.query()
@@ -47,16 +46,24 @@ class HueColorLight(polyglot.Node):
         (self.color_x, self.color_y) = [round(val, 4)
                               for val in data['state'].get('xy',[0.0,0.0])]
         self.on = data['state']['on']                      
-        self.brightness = round(data['state']['bri'] / 255. * 100., 4)
+        self.brightness = data['state']['bri']
+        self.st = bri2st(data['state']['bri'])
         self.hue = data['state']['hue']
         self.saturation = data['state']['sat']
-        self.colortemp = data['state']['ct']
+        self.colortemp = kel2mired(data['state']['ct'])
         self.reachable = data['state']['reachable']
+        self.alert = data['state']['alert']
+        self.effect = data['state']['effect']
         
         self.setDriver('GV1', self.color_x)
         self.setDriver('GV2', self.color_y)
+        self.setDriver('GV3', self.hue)
+        self.setDriver('GV4', self.saturation)
+        self.setDriver('GV5', self.brightness)
+        self.setDriver('GV6', self.reachable)
+
         if self.on:
-            self.setDriver('ST', self.brightness)
+            self.setDriver('ST', self.st)
         else:
             self.setDriver('ST', 0)
         return True
@@ -64,7 +71,7 @@ class HueColorLight(polyglot.Node):
     def setOn(self, *args, **kwargs):
         command = {'on': True}
         result = self._send_command(command)
-        self.setDriver('ST', self.brightness)
+        self.setDriver('ST', self.st)
         return result
 
     def setOff(self, *args, **kwargs):
@@ -72,19 +79,6 @@ class HueColorLight(polyglot.Node):
         result = self._send_command(command)
         self.setDriver('ST', 0)
         return result
-            
-    def _set_brightness(self, value=None, **kwargs):
-        """ set node brightness """
-        # pylint: disable=unused-argument
-        if value is not None:
-            value = int(value / 100. * 255)
-            if value > 0:
-                command = {'on': True, 'bri': value}
-            else:
-                command = {'on': False}
-        else:
-            command = {'on': True}
-        return self._send_command(command)
 
     def setColorRGB(self, command):
         """ set light RGB color """
@@ -127,16 +121,54 @@ class HueColorLight(polyglot.Node):
         return self._send_command(hue_command)
 
     def setManual(self, command):
-        return True
+        cmd = command.get('cmd')
+        val = int(command.get('value'))
+        if cmd == "SET_HUE":
+            self.hue = value
+            driver = ['GV3', self.hue]
+            hue_command = _checkOn( { 'hue': self.hue } )
+        elif cmd == "SET_SAT":
+            self.saturation = value
+            driver = ['GV4', self.saturation]
+            hue_command = _checkOn( { 'sat': self.saturation } )
+        elif cmd == "SET_BRI":
+            self.brightness = value
+            driver = ['GV5', self.brightness]
+            hue_command = _checkOn( { 'bri': self.brightness } )
+        elif cmd == "SET_KEL":
+            self.ct = value
+            driver = ['CLITEMP', self.ct]
+            hue_command = _checkOn( { 'ct': kel2mired(self.ct) } )
+        if driver:
+           self.setDriver(driver[0], driver[1])
+        return self._send_command(hue_command)
 
-    def setHSBKD(self, command):
-        return True
+    def setColorHSB(self, command):
+        query = command.get('query')
+        self.hue = int(query.get('H.uom56'))
+        self.saturation = int(query.get('S.uom56'))
+        self.brightness = int(query.get('B.uom56'))
+        self.st = bri2st(self.brightness)
+        if self.on != True:
+            hue_command['on'] = True
+            self.on = True
+        hue_command = {'hue': self.hue, 'sat': self.saturation, 'bri': self.brightness}
+        self.setDriver('GV3', self.hue)
+        self.setDriver('GV4', self.saturation)
+        self.setDriver('GV5', self.brightness)
+        self.setDriver('ST', self.st)
+        return self._send_command(hue_command)
         
     def _send_command(self, command):
         """ generic method to send command to light """
         responses = self.parent.hub.set_light(self.lamp_id, command)
         return all(
             [list(resp.keys())[0] == 'success' for resp in responses[0]])
+
+    def _checkOn(self, command):
+        if self.on != True:
+            command['on'] = True
+        return command
 
     """ Driver Details:
     GV1: Color X
@@ -151,15 +183,16 @@ class HueColorLight(polyglot.Node):
                 {'driver': 'GV4', 'value': 0, 'uom': 56},
                 {'driver': 'GV5', 'value': 0, 'uom': 56},
                 {'driver': 'CLITEMP', 'value': 0, 'uom': 26},
-                {'driver': 'RR', 'value': 0, 'uom': 42}
+                {'driver': 'RR', 'value': 0, 'uom': 42},
+                {'driver': 'GV6', 'value': 0, 'uom': 2}
               ]
 
     commands = {
                    'DON': setOn, 'DOF': setOff, 'QUERY': query,
                    'SET_COLOR': setColor, 'SET_HUE': setManual,
                    'SET_SAT': setManual, 'SET_BRI': setManual,
-                   'SET_KEL': setManual, 'SET_DEL': setManual,
-                   'SET_HSBKD': setHSBKD, 'SET_COLOR_RGB': setColorRGB,
+                   'SET_KEL': setManual, 'SET_DUR': setManual,
+                   'SET_HSB': setColorHSB, 'SET_COLOR_RGB': setColorRGB,
                    'SET_COLOR_XY': setColorXY
                }
 
