@@ -26,8 +26,18 @@
     </editor>
     
     <!-- Hue Editor -->
-    <editor id="HCLHSB">
+    <editor id="HCLHUE">
         <range uom="56" min="0" max="65535" prec="0" step="1" />
+    </editor>
+
+    <!-- Saturation Editor -->
+    <editor id="HCLSAT">
+        <range uom="56" min="0" max="254" prec="0" step="1" />
+    </editor>
+
+    <!-- Brightness Editor -->
+    <editor id="HCLBRI">
+        <range uom="56" min="1" max="254" prec="0" step="1" />
     </editor>
 
     <!-- Hue Kelvin Editor -->

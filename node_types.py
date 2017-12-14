@@ -5,6 +5,8 @@ from functools import partial
 import json
 import polyinterface as polyglot
 
+LOGGER = polyglot.LOGGER
+
 def myint(value):
     """ round and convert to int """
     return int(round(float(value)))
@@ -50,7 +52,7 @@ class HueColorLight(polyglot.Node):
         self.st = bri2st(data['state']['bri'])
         self.hue = data['state']['hue']
         self.saturation = data['state']['sat']
-        self.colortemp = kel2mired(data['state']['ct'])
+        self.ct = kel2mired(data['state']['ct'])
         self.reachable = data['state']['reachable']
         self.alert = data['state']['alert']
         self.effect = data['state']['effect']
@@ -60,99 +62,100 @@ class HueColorLight(polyglot.Node):
         self.setDriver('GV3', self.hue)
         self.setDriver('GV4', self.saturation)
         self.setDriver('GV5', self.brightness)
-        self.setDriver('GV6', self.reachable)
+        self.setDriver('CLITEMP', self.ct)
+
+        if self.reachable:
+            self.setDriver('GV6', 1)
+        else:
+            self.setDriver('GV6', 0)
 
         if self.on:
             self.setDriver('ST', self.st)
         else:
             self.setDriver('ST', 0)
+
         return True
 
     def setOn(self, *args, **kwargs):
+        LOGGER.debug('Running: setOn')
         command = {'on': True}
         result = self._send_command(command)
         self.setDriver('ST', self.st)
         return result
 
     def setOff(self, *args, **kwargs):
+        LOGGER.debug('Running: setOff')
         command = {'on': False}
         result = self._send_command(command)
         self.setDriver('ST', 0)
         return result
 
     def setColorRGB(self, command):
-        """ set light RGB color """
+        LOGGER.debug('Running: setColorRGB')
         query = command.get('query')
         color_r = int(query.get('R.uom56'))
         color_g = int(query.get('G.uom56'))
         color_b = int(query.get('B.uom56'))
         (self.color_x, self.color_y) = RGB_2_xy(color_r, color_g, color_b)
-        hue_command = {'xy': [self.color_x, self.color_y]}
-        if self.on != True:
-            hue_command['on'] = True
-            self.on = True
+        hue_command = self._checkOn({'xy': [self.color_x, self.color_y]})
         self.setDriver('GV1', self.color_x)
         self.setDriver('GV2', self.color_y)
         return self._send_command(hue_command)
 
     def setColorXY(self, command):
-        """ set light XY color """
+        LOGGER.debug('Running: setColorXY')
         query = command.get('query')
         self.color_x = int(query.get('X.uom56'))
         self.color_y = int(query.get('Y.uom56'))
-        hue_command = {'xy': [self.color_x, self.color_y]}
-        if self.on != True:
-            hue_command['on'] = True
-            self.on = True
+        hue_command = self._checkOn({'xy': [self.color_x, self.color_y]})
         self.setDriver('GV1', self.color_x)
         self.setDriver('GV2', self.color_y)            
         return self._send_command(hue_command)
 
     def setColor(self, command):
-        """ set color from index """
+        LOGGER.debug('Running: setColor')
         c_id = int(command.get('value')) - 1
         (color_x, color_y) = color_xy(c_id)
-        hue_command = {'xy': [color_x, color_y]}
-        if self.on != True:
-            hue_command['on'] = True
-            self.on = True
+        hue_command = self._checkOn({'xy': [color_x, color_y]})
         self.setDriver('GV1', self.color_x)
         self.setDriver('GV2', self.color_y)
         return self._send_command(hue_command)
 
     def setManual(self, command):
+        LOGGER.debug('Running: setManual')
         cmd = command.get('cmd')
         val = int(command.get('value'))
         if cmd == "SET_HUE":
-            self.hue = value
+            self.hue = val
             driver = ['GV3', self.hue]
-            hue_command = _checkOn( { 'hue': self.hue } )
+            hue_command = self._checkOn( { 'hue': self.hue } )
         elif cmd == "SET_SAT":
-            self.saturation = value
+            self.saturation = val
             driver = ['GV4', self.saturation]
-            hue_command = _checkOn( { 'sat': self.saturation } )
+            hue_command = self._checkOn( { 'sat': self.saturation } )
         elif cmd == "SET_BRI":
-            self.brightness = value
+            self.brightness = val
             driver = ['GV5', self.brightness]
-            hue_command = _checkOn( { 'bri': self.brightness } )
+            hue_command = self._checkOn( { 'bri': self.brightness } )
         elif cmd == "SET_KEL":
-            self.ct = value
+            self.ct = val
             driver = ['CLITEMP', self.ct]
-            hue_command = _checkOn( { 'ct': kel2mired(self.ct) } )
+            hue_command = self._checkOn( { 'ct': kel2mired(self.ct) } )
+        else:
+            LOGGER.error('Unknown manual command')
+            return False
         if driver:
            self.setDriver(driver[0], driver[1])
         return self._send_command(hue_command)
 
     def setColorHSB(self, command):
+        LOGGER.debug('Running: setColorHSB')
         query = command.get('query')
         self.hue = int(query.get('H.uom56'))
         self.saturation = int(query.get('S.uom56'))
         self.brightness = int(query.get('B.uom56'))
         self.st = bri2st(self.brightness)
-        if self.on != True:
-            hue_command['on'] = True
-            self.on = True
-        hue_command = {'hue': self.hue, 'sat': self.saturation, 'bri': self.brightness}
+        hue_command = self._checkOn({'hue': self.hue, 'sat': self.saturation, 'bri': self.brightness})
         self.setDriver('GV3', self.hue)
         self.setDriver('GV4', self.saturation)
         self.setDriver('GV5', self.brightness)
