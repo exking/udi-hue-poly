@@ -2,9 +2,9 @@
     <!-- Hub Node -->
     <nodeDef id="HUEBR" nls="HHUB">
         <editors />
-        <sts />
+        <sts>
             <st id="ST" editor="HCONNECT" />
-	</sts>
+	    </sts>
         <cmds>
             <sends />
             <accepts>
@@ -26,6 +26,7 @@
             <st id="GV3" editor="HCLHSB" /> <!-- Hue -->
             <st id="GV4" editor="HCLHSB" /> <!-- Saturation -->
             <st id="GV5" editor="HCLHSB" /> <!-- Brightness -->
+            <st id="GV6" editor="HCONNECT" /> <!-- Reachable -->
         </sts>
         <cmds>
             <sends />
@@ -61,12 +62,67 @@
                 <cmd id="SET_DUR">
                     <p id="" editor="HDURATION" init="RR" />
                 </cmd>
-                <cmd id="SET_HSBKD">
+                <cmd id="SET_HSB">
                     <p id="H" editor="HCLHSB" init="GV3" />
                     <p id="S" editor="HCLHSB" init="GV4" />
                     <p id="B" editor="HCLHSB" init="GV5" />
-                    <p id="K" editor="HKELVIN" init="CLITEMP" />
                     <p id="D" editor="HDURATION" init="RR" />
+                </cmd>
+            </accepts>
+        </cmds>
+    </nodeDef>
+
+    <!-- White Light -->
+    <nodeDef id="WHITE_LIGHT" nls="HCL">
+        <editors />
+        <sts>
+            <st id="ST" editor="HCLST" />
+            <st id="CLITEMP" editor="HKELVIN" />
+            <st id="RR" editor="HDURATION" />                        
+            <st id="GV5" editor="HCLHSB" /> <!-- Brightness -->
+            <st id="GV6" editor="HCONNECT" /> <!-- Reachable -->
+        </sts>
+        <cmds>
+            <sends />
+            <accepts>
+                <cmd id="DON" />
+                <cmd id="DOF" />
+                <cmd id="QUERY" />
+                <cmd id="APPLY" />
+                <cmd id="SET_BRI">
+                    <p id="" editor="HCLHSB" init="GV5" />
+                </cmd>
+                <cmd id="SET_KEL">
+                    <p id="" editor="HKELVIN" init="CLITEMP" />
+                </cmd>
+                <cmd id="SET_DUR">
+                    <p id="" editor="HDURATION" init="RR" />
+                </cmd>
+            </accepts>
+        </cmds>
+    </nodeDef>
+
+    <!-- Dimmable Light -->
+    <nodeDef id="DIMM_LIGHT" nls="HCL">
+        <editors />
+        <sts>
+            <st id="ST" editor="HCLST" />
+            <st id="RR" editor="HDURATION" />                        
+            <st id="GV5" editor="HCLHSB" /> <!-- Brightness -->
+            <st id="GV6" editor="HCONNECT" /> <!-- Reachable -->
+        </sts>
+        <cmds>
+            <sends />
+            <accepts>
+                <cmd id="DON" />
+                <cmd id="DOF" />
+                <cmd id="QUERY" />
+                <cmd id="APPLY" />
+                <cmd id="SET_BRI">
+                    <p id="" editor="HCLHSB" init="GV5" />
+                </cmd>
+                <cmd id="SET_DUR">
+                    <p id="" editor="HDURATION" init="RR" />
                 </cmd>
             </accepts>
         </cmds>

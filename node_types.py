@@ -110,7 +110,7 @@ class HueColorLight(polyglot.Node):
 
     def setColor(self, command):
         """ set color from index """
-        c_id = int(command.get('value'))
+        c_id = int(command.get('value')) - 1
         (color_x, color_y) = color_xy(c_id)
         hue_command = {'xy': [color_x, color_y]}
         if self.on != True:
