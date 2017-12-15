@@ -76,6 +76,12 @@
                     <p id="B" editor="HCLBRI" init="GV5" />
                     <p id="D" editor="HDURATION" init="RR" />
                 </cmd>
+                <cmd id="SET_ALERT">
+                    <p id="" editor="HASEL" />
+                </cmd>
+                <cmd id="SET_EFFECT">
+                    <p id="" editor="HESEL" />
+                </cmd>
             </accepts>
         </cmds>
     </nodeDef>
@@ -138,6 +144,12 @@
                     <p id="B" editor="HCLBRI" init="GV5" />
                     <p id="D" editor="HDURATION" init="RR" />
                 </cmd>
+                <cmd id="SET_ALERT">
+                    <p id="" editor="HASEL" />
+                </cmd>
+                <cmd id="SET_EFFECT">
+                    <p id="" editor="HESEL" />
+                </cmd>
             </accepts>
         </cmds>
     </nodeDef>
@@ -174,6 +186,9 @@
                 <cmd id="SET_DUR">
                     <p id="" editor="HDURATION" init="RR" />
                 </cmd>
+                <cmd id="SET_ALERT">
+                    <p id="" editor="HASEL" />
+                </cmd>
             </accepts>
         </cmds>
     </nodeDef>
@@ -205,6 +220,9 @@
                 </cmd>
                 <cmd id="SET_DUR">
                     <p id="" editor="HDURATION" init="RR" />
+                </cmd>
+                <cmd id="SET_ALERT">
+                    <p id="" editor="HASEL" />
                 </cmd>
             </accepts>
         </cmds>

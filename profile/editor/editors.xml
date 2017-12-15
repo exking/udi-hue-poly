@@ -25,6 +25,16 @@
         <range uom="25" subset="1-24" nls="COLORS_HCSEL" />
     </editor>
     
+    <!-- Alert Selector -->
+    <editor id="HASEL">
+        <range uom="25" subset="1-3" nls="ALERTS_HASEL" />
+    </editor>
+    
+    <!-- Effect Selector -->
+    <editor id="HESEL">
+        <range uom="25" subset="1-2" nls="EFFECTS_HESEL" />
+    </editor>
+    
     <!-- Hue Editor -->
     <editor id="HCLHUE">
         <range uom="56" min="0" max="65535" prec="0" step="1" />

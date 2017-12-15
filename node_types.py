@@ -9,6 +9,9 @@ LOGGER = polyglot.LOGGER
 
 """ Hue Default transition time is 400ms """
 DEF_TRANSTIME = 400
+FADE_TRANSTIME = 4000
+HUE_EFFECTS = ['none', 'colorloop']
+HUE_ALERTS = ['none', 'select', 'lselect']
 
 class HueDimmLight(polyglot.Node):
     """ Node representing Hue Dimmable Light """
@@ -96,10 +99,10 @@ class HueDimmLight(polyglot.Node):
                 if self.brightness + increment < 1:
                     increment = 1 - self.brightness
             elif cmd == 'FDUP':
-                trans = 4000
+                trans = FADE_TRANSTIME
                 increment = 254 - self.brightness
             elif cmd == 'FDDOWN':
-                trans = 4000
+                trans = FADE_TRANSTIME
                 increment = 1 - self.brightness
             else:
                 """ FDSTOP """
@@ -127,6 +130,12 @@ class HueDimmLight(polyglot.Node):
         self.transitiontime = int(command.get('value'))
         self.setDriver('RR', self.transitiontime)
         return True
+
+    def setAlert(self, command):
+        val = int(command.get('value')) - 1
+        self.alert = HUE_ALERTS[val]
+        hue_command = { 'alert': self.alert }
+        return self._send_command(hue_command, self.transitiontime, True)
 
     def _send_command(self, command, transtime, checkOn):
         """ generic method to send command to light """
@@ -156,7 +165,8 @@ class HueDimmLight(polyglot.Node):
                    'DON': setBaseCtl, 'DOF': setBaseCtl, 'QUERY': query,
                    'DFON': setBaseCtl, 'DFOF': setBaseCtl, 'BRT': setBaseCtl,
                    'DIM': setBaseCtl, 'FDUP': setBaseCtl, 'FDDOWN': setBaseCtl,
-                   'FDSTOP': setBaseCtl, 'SET_BRI': setBrightness, 'SET_DUR': setTransition
+                   'FDSTOP': setBaseCtl, 'SET_BRI': setBrightness, 'SET_DUR': setTransition,
+                   'SET_ALERT': setAlert
                }
 
     id = 'DIMM_LIGHT'
@@ -193,7 +203,7 @@ class HueWhiteLight(HueDimmLight):
                    'DFON': HueDimmLight.setBaseCtl, 'DFOF': HueDimmLight.setBaseCtl, 'BRT': HueDimmLight.setBaseCtl,
                    'DIM': HueDimmLight.setBaseCtl, 'FDUP': HueDimmLight.setBaseCtl, 'FDDOWN': HueDimmLight.setBaseCtl,
                    'FDSTOP': HueDimmLight.setBaseCtl, 'SET_BRI': HueDimmLight.setBrightness, 'SET_DUR': HueDimmLight.setTransition,
-                   'SET_KEL': setCt
+                   'SET_KEL': setCt, 'SET_ALERT': HueDimmLight.setAlert
                }
 
     id = 'WHITE_LIGHT'
@@ -284,6 +294,12 @@ class HueColorLight(HueDimmLight):
         self.setDriver('ST', self.st)
         return self._send_command(hue_command, transtime, True)
 
+    def setEffect(self, command):
+        val = int(command.get('value')) - 1
+        self.effect = HUE_EFFECTS[val]
+        hue_command = { 'effect': self.effect }
+        return self._send_command(hue_command, self.transitiontime, True)
+
     drivers = [ {'driver': 'ST', 'value': 0, 'uom': 51},
                 {'driver': 'GV1', 'value': 0, 'uom': 56},
                 {'driver': 'GV2', 'value': 0, 'uom': 56},
@@ -300,7 +316,8 @@ class HueColorLight(HueDimmLight):
                    'DIM': HueDimmLight.setBaseCtl, 'FDUP': HueDimmLight.setBaseCtl, 'FDDOWN': HueDimmLight.setBaseCtl,
                    'FDSTOP': HueDimmLight.setBaseCtl, 'SET_BRI': HueDimmLight.setBrightness, 'SET_DUR': HueDimmLight.setTransition,
                    'SET_COLOR': setColor, 'SET_HUE': setHue, 'SET_SAT': setSat, 'SET_HSB': setColorHSB,
-                   'SET_COLOR_RGB': setColorRGB, 'SET_COLOR_XY': setColorXY
+                   'SET_COLOR_RGB': setColorRGB, 'SET_COLOR_XY': setColorXY, 'SET_ALERT': HueDimmLight.setAlert,
+                   'SET_EFFECT': setEffect
                }
 
     id = 'COLOR_LIGHT'
@@ -343,7 +360,7 @@ class HueEColorLight(HueColorLight):
                    'FDSTOP': HueDimmLight.setBaseCtl, 'SET_BRI': HueDimmLight.setBrightness, 'SET_DUR': HueDimmLight.setTransition,
                    'SET_COLOR': HueColorLight.setColor, 'SET_HUE': HueColorLight.setHue, 'SET_SAT': HueColorLight.setSat,
                    'SET_KEL': setCt, 'SET_HSB': HueColorLight.setColorHSB, 'SET_COLOR_RGB': HueColorLight.setColorRGB,
-                   'SET_COLOR_XY': HueColorLight.setColorXY
+                   'SET_COLOR_XY': HueColorLight.setColorXY, 'SET_ALERT': HueDimmLight.setAlert, 'SET_EFFECT': HueColorLight.setEffect
                }
 
     id = 'ECOLOR_LIGHT'
