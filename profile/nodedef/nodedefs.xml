@@ -33,6 +33,13 @@
             <accepts>
                 <cmd id="DON" />
                 <cmd id="DOF" />
+                <cmd id="DFON" />
+                <cmd id="DFOF" />
+                <cmd id="BRT" />
+                <cmd id="DIM" />
+                <cmd id="FDUP" />
+                <cmd id="FDDOWN" />
+                <cmd id="FDSTOP" />
                 <cmd id="QUERY" />
                 <cmd id="SET_COLOR_RGB">
                     <p id="R" editor="HCLRGB" />
@@ -89,8 +96,15 @@
         <cmds>
             <sends />
             <accepts>
-                <cmd id="DON" />
+	        <cmd id="DON" />
                 <cmd id="DOF" />
+                <cmd id="DFON" />
+                <cmd id="DFOF" />
+                <cmd id="BRT" />
+                <cmd id="DIM" />
+                <cmd id="FDUP" />
+                <cmd id="FDDOWN" />
+                <cmd id="FDSTOP" />
                 <cmd id="QUERY" />
                 <cmd id="SET_COLOR_RGB">
                     <p id="R" editor="HCLRGB" />
@@ -143,6 +157,13 @@
             <accepts>
                 <cmd id="DON" />
                 <cmd id="DOF" />
+                <cmd id="DFON" />
+                <cmd id="DFOF" />
+                <cmd id="BRT" />
+                <cmd id="DIM" />
+                <cmd id="FDUP" />
+                <cmd id="FDDOWN" />
+                <cmd id="FDSTOP" />
                 <cmd id="QUERY" />
                 <cmd id="SET_BRI">
                     <p id="" editor="HCLBRI" init="GV5" />
@@ -171,6 +192,13 @@
             <accepts>
                 <cmd id="DON" />
                 <cmd id="DOF" />
+                <cmd id="DFON" />
+                <cmd id="DFOF" />
+                <cmd id="BRT" />
+                <cmd id="DIM" />
+                <cmd id="FDUP" />
+                <cmd id="FDDOWN" />
+                <cmd id="FDSTOP" />
                 <cmd id="QUERY" />
                 <cmd id="SET_BRI">
                     <p id="" editor="HCLBRI" init="GV5" />

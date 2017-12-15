@@ -1,6 +1,6 @@
 {
     "name": "Hue",
-    "docs": "https://www.google.com",
+    "docs": "https://developers.meethue.com/documentation/",
     "type": "python3",
     "executable": "hue.py",
     "install": "install.sh",
@@ -10,10 +10,25 @@
     "notice": "\"Hue Personal Wireless Lighting\" is a trademark owned by Koninklijke Philips Electronics N.V., see www.meethue.com for more information. This Node Server is neither developed by nor endorsed by the Philips organization.",
     "credits": [
         {
+            "title": "udi-hue-poly: A Polyglot v2 interface to Philips Hue",
+            "author": "Andrey Pevnev (xKing)",
+            "version": "0.0.1",
+            "date": "Dec 15, 2017",
+            "source": "https://github.com/exking/udi-hue-poly",
+            "license": "https://raw.githubusercontent.com/exking/udi-hue-poly/master/LICENSE"
+        },
+            "title": "udi-poly-template-python: A Polyglot v2 Poly template",
+            "author": "James Milne (Einstein.42)",
+            "version": "2.0.0",
+            "date": "November 8, 2017",
+            "source": "https://github.com/Einstein42/udi-poly-template-python",
+            "license": "https://raw.githubusercontent.com/Einstein42/udi-poly-template-python/master/LICENSE"
+        },
+        {
             "title": "phue: A Python library for Philips Hue",
             "author": "Nathanaël Lécaudé (studioimaginaire)",
-            "version": "0.9",
-            "date": "May 18, 2015",
+            "version": "1.1",
+            "date": "Jul 2, 2017",
             "source": "https://github.com/studioimaginaire/phue/tree/c48845992b476f4b1de9549ea5b5277399f56581",
             "license": "https://raw.githubusercontent.com/studioimaginaire/phue/c48845992b476f4b1de9549ea5b5277399f56581/LICENSE"
         }
