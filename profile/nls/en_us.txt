@@ -5,6 +5,8 @@ ST-HHUB-ST-NAME = Connected
 CMD-HHUB-DISCOVER-NAME = Re-Discover Bulbs
 
 # Color Light Labels
+ND-ECOLOR_LIGHT-NAME = Extended Color Light
+ND-ECOLOR_LIGHT-ICON = Lamp
 ND-COLOR_LIGHT-NAME = Color Light
 ND-COLOR_LIGHT-ICON = Lamp
 ND-WHITE_LIGHT-NAME = White Light

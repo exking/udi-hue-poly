@@ -14,8 +14,8 @@
         </cmds>
     </nodeDef>
 
-    <!-- Color Light -->
-    <nodeDef id="COLOR_LIGHT" nls="HCL">
+    <!-- Extended Color Light -->
+    <nodeDef id="ECOLOR_LIGHT" nls="HCL">
         <editors />
         <sts>
             <st id="ST" editor="HCLST" />
@@ -59,6 +59,61 @@
                 </cmd>
                 <cmd id="SET_KEL">
                     <p id="" editor="HKELVIN" init="CLITEMP" />
+                </cmd>
+                <cmd id="SET_DUR">
+                    <p id="" editor="HDURATION" init="RR" />
+                </cmd>
+                <cmd id="SET_HSB">
+                    <p id="H" editor="HCLHUE" init="GV3" />
+                    <p id="S" editor="HCLSAT" init="GV4" />
+                    <p id="B" editor="HCLBRI" init="GV5" />
+                    <p id="D" editor="HDURATION" init="RR" />
+                </cmd>
+            </accepts>
+        </cmds>
+    </nodeDef>
+
+    <!-- Color Light -->
+    <nodeDef id="COLOR_LIGHT" nls="HCL">
+        <editors />
+        <sts>
+            <st id="ST" editor="HCLST" />
+            <st id="RR" editor="HDURATION" />
+            <st id="GV1" editor="HCLXY" />  <!-- Color X -->
+            <st id="GV2" editor="HCLXY" />  <!-- Color Y -->
+            <st id="GV3" editor="HCLHUE" /> <!-- Hue -->
+            <st id="GV4" editor="HCLSAT" /> <!-- Saturation -->
+            <st id="GV5" editor="HCLBRI" /> <!-- Brightness -->
+            <st id="GV6" editor="HCONNECT" /> <!-- Reachable -->
+        </sts>
+        <cmds>
+            <sends />
+            <accepts>
+                <cmd id="DON" />
+                <cmd id="DOF" />
+                <cmd id="QUERY" />
+                <cmd id="SET_COLOR_RGB">
+                    <p id="R" editor="HCLRGB" />
+                    <p id="G" editor="HCLRGB" />
+                    <p id="B" editor="HCLRGB" />
+                    <p id="D" editor="HDURATION" init="RR" />
+                </cmd>
+                <cmd id="SET_COLOR_XY">
+                    <p id="X" editor="HCLXY" init="GV1" />
+                    <p id="Y" editor="HCLXY" init="GV2" />
+                    <p id="D" editor="HDURATION" init="RR" />
+                </cmd>
+                <cmd id="SET_COLOR">
+                    <p id="" editor="HCSEL" />
+                </cmd>
+                <cmd id="SET_HUE">
+                    <p id="" editor="HCLHUE" init="GV3"/>
+                </cmd>
+                <cmd id="SET_SAT">
+                    <p id="" editor="HCLSAT" init="GV4"/>
+                </cmd>
+                <cmd id="SET_BRI">
+                    <p id="" editor="HCLBRI" init="GV5" />
                 </cmd>
                 <cmd id="SET_DUR">
                     <p id="" editor="HDURATION" init="RR" />

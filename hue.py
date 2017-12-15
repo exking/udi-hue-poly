@@ -7,7 +7,7 @@ try:
 except ImportError:
     from http.client import BadStatusLine  # Python 3.x
 import polyinterface as polyglot
-from node_types import HueColorLight
+from node_types import HueDimmLight, HueWhiteLight, HueColorLight, HueEColorLight
 import sys
 import phue
 
@@ -17,7 +17,7 @@ class Control(polyglot.Controller):
     """ Phillips Hue Node Server """
     
     def __init__(self, poly):
-        super(Control, self).__init__(poly)    
+        super().__init__(poly)
         self.name = 'Hue Bridge'
         self.address = 'huebridge'
         self.primary = self.address
@@ -33,10 +33,6 @@ class Control(polyglot.Controller):
         self.discover()
 
     def shortPoll(self):
-        """
-        Overridden shortPoll. It is imperative that you super this if you override it
-        as the threading.Timer loop is in the parent method.
-        """
         self.updateNodes()
 
     def connect(self):
@@ -82,13 +78,18 @@ class Control(polyglot.Controller):
             name = data['name']
             
             if not address in self.nodes:
-                if data['type'] == "Extended color light" or data['type'] == "Color Light":
+                if data['type'] == "Extended color light":
+                    LOGGER.info('Found Extended Color Bulb: {}({})'.format(name, address))
+                    self.addNode(HueEColorLight(self, self.address, address, name, lamp_id, data))
+                elif data['type'] == "Color Light":
                     LOGGER.info('Found Color Bulb: {}({})'.format(name, address))
                     self.addNode(HueColorLight(self, self.address, address, name, lamp_id, data))
                 elif data['type'] == "Color temperature light":
                     LOGGER.info('Found White Ambiance Bulb: {}({})'.format(name, address))
+                    self.addNode(HueWhiteLight(self, self.address, address, name, lamp_id, data))
                 elif data['type'] == "Dimmable Light":
                     LOGGER.info('Found Dimmable Bulb: {}({})'.format(name, address))
+                    self.addNode(HueDimmLight(self, self.address, address, name, lamp_id, data))
                 else:
                     LOGGER.info('Found Unsupported {} Bulb: {}({})'.format(data['type'], name, address))
         
