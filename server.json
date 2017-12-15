@@ -17,6 +17,7 @@
             "source": "https://github.com/exking/udi-hue-poly",
             "license": "https://raw.githubusercontent.com/exking/udi-hue-poly/master/LICENSE"
         },
+	{
             "title": "udi-poly-template-python: A Polyglot v2 Poly template",
             "author": "James Milne (Einstein.42)",
             "version": "2.0.0",
