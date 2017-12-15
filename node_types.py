@@ -238,8 +238,8 @@ class HueColorLight(HueDimmLight):
     def setColorXY(self, command):
         LOGGER.debug('Running: setColorXY')
         query = command.get('query')
-        self.color_x = int(query.get('X.uom56'))
-        self.color_y = int(query.get('Y.uom56'))
+        self.color_x = float(query.get('X.uom56'))
+        self.color_y = float(query.get('Y.uom56'))
         transtime = int(query.get('D.uom42'))
         hue_command = {'xy': [self.color_x, self.color_y]}
         self.setDriver('GV1', self.color_x)
