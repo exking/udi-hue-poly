@@ -15,11 +15,11 @@ I am in no way affiliated with the Philips organization.
 '''
 
 import json
-import logging
 import os
 import platform
 import sys
 import socket
+import polyinterface as polyglot
 if sys.version_info[0] > 2:
     PY3K = True
 else:
@@ -30,7 +30,7 @@ if PY3K:
 else:
     import httplib
 
-logger = logging.getLogger('phue')
+LOGGER = polyglot.LOGGER
 
 
 if platform.system() == 'Windows':
@@ -107,7 +107,7 @@ class Light(object):
 
         if self.transitiontime is not None:
             kwargs['transitiontime'] = self.transitiontime
-            logger.debug("Setting with transitiontime = {0} ds = {1} s".format(
+            LOGGER.debug("Setting with transitiontime = {0} ds = {1} s".format(
                 self.transitiontime, float(self.transitiontime) / 10))
 
             if (args[0] == 'on' and args[1] is False) or (
@@ -130,7 +130,7 @@ class Light(object):
         self._name = value
         self._set('name', self._name)
 
-        logger.debug("Renaming light from '{0}' to '{1}'".format(
+        LOGGER.debug("Renaming light from '{0}' to '{1}'".format(
             old_name, value))
 
         self.bridge.lights_by_name[self.name] = self
@@ -155,7 +155,7 @@ class Light(object):
         if self._on and value is False:
             self._reset_bri_after_on = self.transitiontime is not None
             if self._reset_bri_after_on:
-                logger.warning(
+                LOGGER.warning(
                     'Turned off light with transitiontime specified, brightness will be reset on power on')
 
         self._set('on', value)
@@ -163,7 +163,7 @@ class Light(object):
         # work around bug by resetting brightness after a power on
         if self._on is False and value is True:
             if self._reset_bri_after_on:
-                logger.warning(
+                LOGGER.warning(
                     'Light was turned off with transitiontime specified, brightness needs to be reset now.')
                 self.brightness = self._brightness
                 self._reset_bri_after_on = False
@@ -239,9 +239,9 @@ class Light(object):
     @colortemp.setter
     def colortemp(self, value):
         if value < 154:
-            logger.warn('154 mireds is coolest allowed color temp')
+            LOGGER.warning('154 mireds is coolest allowed color temp')
         elif value > 500:
-            logger.warn('500 mireds is warmest allowed color temp')
+            LOGGER.warning('500 mireds is warmest allowed color temp')
         self._colortemp = value
         self._set('ct', self._colortemp)
 
@@ -254,14 +254,14 @@ class Light(object):
     @colortemp_k.setter
     def colortemp_k(self, value):
         if value > 6500:
-            logger.warn('6500 K is max allowed color temp')
+            LOGGER.warning('6500 K is max allowed color temp')
             value = 6500
         elif value < 2000:
-            logger.warn('2000 K is min allowed color temp')
+            LOGGER.warning('2000 K is min allowed color temp')
             value = 2000
 
         colortemp_mireds = int(round(1e6 / value))
-        logger.debug("{0:d} K is {1} mireds".format(value, colortemp_mireds))
+        LOGGER.debug("{0:d} K is {1} mireds".format(value, colortemp_mireds))
         self.colortemp = colortemp_mireds
 
     @property
@@ -372,7 +372,7 @@ class Sensor(object):
         self._name = value
         self._set('name', self._name)
 
-        logger.debug("Renaming sensor from '{0}' to '{1}'".format(
+        LOGGER.debug("Renaming sensor from '{0}' to '{1}'".format(
             old_name, value))
 
         self.bridge.sensors_by_name[self.name] = self
@@ -488,7 +488,7 @@ class Group(Light):
         # transition time...
         if self.transitiontime is not None:
             kwargs['transitiontime'] = self.transitiontime
-            logger.debug("Setting with transitiontime = {0} ds = {1} s".format(
+            LOGGER.debug("Setting with transitiontime = {0} ds = {1} s".format(
                 self.transitiontime, float(self.transitiontime) / 10))
 
             if (args[0] == 'on' and args[1] is False) or (
@@ -509,7 +509,7 @@ class Group(Light):
     def name(self, value):
         old_name = self.name
         self._name = value
-        logger.debug("Renaming light group from '{0}' to '{1}'".format(
+        LOGGER.debug("Renaming light group from '{0}' to '{1}'".format(
             old_name, value))
         self._set('name', self._name)
 
@@ -523,7 +523,7 @@ class Group(Light):
     @lights.setter
     def lights(self, value):
         """ Change the lights that are in this group"""
-        logger.debug("Setting lights in group {0} to {1}".format(
+        LOGGER.debug("Setting lights in group {0} to {1}".format(
             self.group_id, str(value)))
         self._set('lights', value)
 
@@ -652,12 +652,12 @@ class Bridge(object):
             if mode == 'PUT' or mode == 'POST':
                 connection.request(mode, address, json.dumps(data))
 
-            logger.debug("{0} {1} {2}".format(mode, address, str(data)))
+            LOGGER.debug("{0} {1} {2}".format(mode, address, str(data)))
 
         except socket.timeout:
             error = "{} Request to {}{} timed out.".format(mode, self.ip, address)
 
-            logger.exception(error)
+            LOGGER.exception(error)
             raise PhueRequestTimeout(None, error)
 
         result = connection.getresponse()
@@ -666,7 +666,7 @@ class Bridge(object):
         if PY3K:
             return json.loads(response.decode('utf-8'))
         else:
-            logger.debug(response)
+            LOGGER.debug(response)
             return json.loads(response)
 
     def get_ip_address(self, set_result=False):
@@ -676,7 +676,7 @@ class Bridge(object):
         connection = httplib.HTTPSConnection('www.meethue.com')
         connection.request('GET', '/api/nupnp')
 
-        logger.info('Connecting to meethue.com/api/nupnp')
+        LOGGER.info('Connecting to meethue.com/api/nupnp')
 
         result = connection.getresponse()
 
@@ -711,10 +711,10 @@ class Bridge(object):
             for key in line:
                 if 'success' in key:
                     with open(self.config_file_path, 'w') as f:
-                        logger.info(
+                        LOGGER.info(
                             'Writing configuration file to ' + self.config_file_path)
                         f.write(json.dumps({self.ip: line['success']}))
-                        logger.info('Reconnecting to the bridge')
+                        LOGGER.info('Reconnecting to the bridge')
                     self.connect()
                 if 'error' in key:
                     error_type = line['error']['type']
@@ -727,11 +727,11 @@ class Bridge(object):
 
     def connect(self):
         """ Connect to the Hue bridge """
-        logger.info('Attempting to connect to the bridge...')
+        LOGGER.info('Attempting to connect to the bridge...')
         # If the ip and username were provided at class init
         if self.ip is not None and self.username is not None:
-            logger.info('Using ip: ' + self.ip)
-            logger.info('Using username: ' + self.username)
+            LOGGER.info('Using ip: ' + self.ip)
+            LOGGER.info('Using username: ' + self.username)
             return
 
         if self.ip is None or self.username is None:
@@ -740,17 +740,17 @@ class Bridge(object):
                     config = json.loads(f.read())
                     if self.ip is None:
                         self.ip = list(config.keys())[0]
-                        logger.info('Using ip from config: ' + self.ip)
+                        LOGGER.info('Using ip from config: ' + self.ip)
                     else:
-                        logger.info('Using ip: ' + self.ip)
+                        LOGGER.info('Using ip: ' + self.ip)
                     if self.username is None:
                         self.username = config[self.ip]['username']
-                        logger.info(
+                        LOGGER.info(
                             'Using username from config: ' + self.username)
                     else:
-                        logger.info('Using username: ' + self.username)
+                        LOGGER.info('Using username: ' + self.username)
             except Exception as e:
-                logger.info(
+                LOGGER.info(
                     'Error opening config file, will attempt bridge registration')
                 self.register_app()
 
@@ -888,7 +888,7 @@ class Bridge(object):
             light_id_array = [light_id]
         result = []
         for light in light_id_array:
-            logger.debug(str(data))
+            LOGGER.debug(str(data))
             if parameter == 'name':
                 result.append(self.request('PUT', '/api/' + self.username + '/lights/' + str(
                     light_id), data))
@@ -900,10 +900,10 @@ class Bridge(object):
                 result.append(self.request('PUT', '/api/' + self.username + '/lights/' + str(
                     converted_light) + '/state', data))
             if 'error' in list(result[-1][0].keys()):
-                logger.warn("ERROR: {0} for light {1}".format(
+                LOGGER.warning("ERROR: {0} for light {1}".format(
                     result[-1][0]['error']['description'], light))
 
-        logger.debug(result)
+        LOGGER.debug(result)
         return result
 
     # Sensors #####
@@ -934,13 +934,13 @@ class Bridge(object):
 
         if ("success" in result[0].keys()):
             new_id = result[0]["success"]["id"]
-            logger.debug("Created sensor with ID " + new_id)
+            LOGGER.debug("Created sensor with ID " + new_id)
             new_sensor = Sensor(self, int(new_id))
             self.sensors_by_id[new_id] = new_sensor
             self.sensors_by_name[name] = new_sensor
             return new_id, None
         else:
-            logger.debug("Failed to create sensor:" + repr(result[0]))
+            LOGGER.debug("Failed to create sensor:" + repr(result[0]))
             return None, result[0]
 
     def get_sensor(self, sensor_id=None, parameter=None):
@@ -954,7 +954,7 @@ class Bridge(object):
             'GET', '/api/' + self.username + '/sensors/' + str(sensor_id))
 
         if isinstance(data, list):
-            logger.debug("Unable to read sensor with ID {0}: {1}".format(sensor_id, repr(data)))
+            LOGGER.debug("Unable to read sensor with ID {0}: {1}".format(sensor_id, repr(data)))
             return None
 
         if parameter is None:
@@ -974,14 +974,14 @@ class Bridge(object):
             data = {parameter: value}
 
         result = None
-        logger.debug(str(data))
+        LOGGER.debug(str(data))
         result = self.request('PUT', '/api/' + self.username + '/sensors/' + str(
             sensor_id), data)
         if 'error' in list(result[0].keys()):
-            logger.warn("ERROR: {0} for sensor {1}".format(
+            LOGGER.warning("ERROR: {0} for sensor {1}".format(
                 result[0]['error']['description'], sensor_id))
 
-        logger.debug(result)
+        LOGGER.debug(result)
         return result
 
     def set_sensor_state(self, sensor_id, parameter, value=None):
@@ -1006,7 +1006,7 @@ class Bridge(object):
         """ Adjust the "state" or "config" structures of a sensor
         """
         if (structure != "state" and structure != "config"):
-            logger.debug("set_sensor_current expects structure 'state' or 'config'.")
+            LOGGER.debug("set_sensor_current expects structure 'state' or 'config'.")
             return False
 
         if isinstance(parameter, dict):
@@ -1019,14 +1019,14 @@ class Bridge(object):
             del data["lastupdated"]
 
         result = None
-        logger.debug(str(data))
+        LOGGER.debug(str(data))
         result = self.request('PUT', '/api/' + self.username + '/sensors/' + str(
             sensor_id) + "/" + structure, data)
         if 'error' in list(result[0].keys()):
-            logger.warn("ERROR: {0} for sensor {1}".format(
+            LOGGER.warning("ERROR: {0} for sensor {1}".format(
                 result[0]['error']['description'], sensor_id))
 
-        logger.debug(result)
+        LOGGER.debug(result)
         return result
 
     def delete_sensor(self, sensor_id):
@@ -1036,7 +1036,7 @@ class Bridge(object):
             del self.sensors_by_id[sensor_id]
             return self.request('DELETE', '/api/' + self.username + '/sensors/' + str(sensor_id))
         except:
-            logger.debug("Unable to delete nonexistent sensor with ID {0}".format(sensor_id))
+            LOGGER.debug("Unable to delete nonexistent sensor with ID {0}".format(sensor_id))
 
     # Groups of lights #####
     @property
@@ -1060,7 +1060,7 @@ class Bridge(object):
         if is_string(group_id):
             group_id = self.get_group_id_by_name(group_id)
         if group_id is False:
-            logger.error('Group name does not exit')
+            LOGGER.error('Group name does not exit')
             return
         if group_id is None:
             return self.request('GET', '/api/' + self.username + '/groups/')
@@ -1098,13 +1098,13 @@ class Bridge(object):
             group_id_array = [group_id]
         result = []
         for group in group_id_array:
-            logger.debug(str(data))
+            LOGGER.debug(str(data))
             if is_string(group):
                 converted_group = self.get_group_id_by_name(group)
             else:
                 converted_group = group
             if converted_group is False:
-                logger.error('Group name does not exit')
+                LOGGER.error('Group name does not exit')
                 return
             if parameter == 'name' or parameter == 'lights':
                 result.append(self.request('PUT', '/api/' + self.username + '/groups/' + str(converted_group), data))
@@ -1112,10 +1112,10 @@ class Bridge(object):
                 result.append(self.request('PUT', '/api/' + self.username + '/groups/' + str(converted_group) + '/action', data))
 
         if 'error' in list(result[-1][0].keys()):
-            logger.warn("ERROR: {0} for group {1}".format(
+            LOGGER.warning("ERROR: {0} for group {1}".format(
                 result[-1][0]['error']['description'], group))
 
-        logger.debug(result)
+        LOGGER.debug(result)
         return result
 
     def create_group(self, name, lights=None):
@@ -1168,12 +1168,12 @@ class Bridge(object):
         groups = [x for x in self.groups if x.name == group_name]
         scenes = [x for x in self.scenes if x.name == scene_name]
         if len(groups) != 1:
-            logger.warn("run_scene: More than 1 group found by name %s",
+            LOGGER.warning("run_scene: More than 1 group found by name %s",
                         group_name)
             return
         group = groups[0]
         if len(scenes) == 0:
-            logger.warn("run_scene: No scene found %s", scene_name)
+            LOGGER.warning("run_scene: No scene found %s", scene_name)
             return
         if len(scenes) == 1:
             self.activate_scene(group.group_id, scenes[0].scene_id)
@@ -1185,7 +1185,7 @@ class Bridge(object):
             if group_lights == scene.lights:
                 self.activate_scene(group.group_id, scene.scene_id)
                 return
-        logger.warn("run_scene: did not find a scene: %s "
+        LOGGER.warning("run_scene: did not find a scene: %s "
                     "that shared lights with group %s",
                     (scene_name, group))
 

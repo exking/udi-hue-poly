@@ -72,8 +72,8 @@ class HueDimmLight(polyglot.Node):
             hue_command = {}
             val = command.get('value')
             if val:
-                onlevel = int(val)
-                self.brightness = int(round(onlevel * 254 / 100))
+                self.brightness = self._validateBri(int(val))
+                self.st = bri2st(self.brightness)
                 hue_command['bri'] = self.brightness
                 self.setDriver('GV5', self.brightness)
             self.st = bri2st(self.brightness)
@@ -119,7 +119,7 @@ class HueDimmLight(polyglot.Node):
         return result
 
     def setBrightness(self, command):
-        self.brightness = int(command.get('value'))
+        self.brightness = self._validateBri(int(command.get('value')))
         self.st = bri2st(self.brightness)
         self.setDriver('GV5', self.brightness)
         self.setDriver('ST', self.st)
@@ -136,6 +136,13 @@ class HueDimmLight(polyglot.Node):
         self.alert = HUE_ALERTS[val]
         hue_command = { 'alert': self.alert }
         return self._send_command(hue_command, self.transitiontime, True)
+
+    def _validateBri(self, brightness):
+        if brightness > 254:
+            brightness = 254
+        elif brightness < 1:
+            brighness = 1
+        return brightness
 
     def _send_command(self, command, transtime, checkOn):
         """ generic method to send command to light """
