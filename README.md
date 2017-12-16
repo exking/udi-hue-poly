@@ -8,7 +8,8 @@ bulbs could be added to the Insteon scenes as responders and should respond to a
 
 You can install it from the Polyglot store or manually running
 ```
-git clone https://github.com/exking/udi-hue-poly.git
+cd ~/.polyglot/nodeservers
+git clone https://github.com/exking/udi-hue-poly.git Hue
 ```
 
 Once installed - push the button on the Hue Bridge and add nodeserver into the Polyglot, that will allow it to pair with the Bridge.
