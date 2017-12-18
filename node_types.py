@@ -32,10 +32,14 @@ class HueDimmLight(polyglot.Node):
         self.query()
         
     def query(self, command = None):
-        self.updateInfo()
+        self.data = self.parent.hub.get_light(self.lamp_id)
+        self._updateInfo()
         
     def updateInfo(self):
-        self.data = self.parent.hub.get_light(self.lamp_id)
+        self.data = self.parent.lights[str(self.lamp_id)]
+        self._updateInfo()
+
+    def _updateInfo(self):
         self.on = self.data['state']['on']
         self.brightness = self.data['state']['bri']
         self.st = bri2st(self.data['state']['bri'])
@@ -192,7 +196,6 @@ class HueWhiteLight(HueDimmLight):
         return True
 
     def setCt(self, command):
-        LOGGER.debug('Running: setCt')
         self.ct = int(command.get('value'))
         self.setDriver('CLITEMP', self.ct)
         hue_command = { 'ct': kel2mired(self.ct) }
@@ -240,7 +243,6 @@ class HueColorLight(HueDimmLight):
         return True
 
     def setColorRGB(self, command):
-        LOGGER.debug('Running: setColorRGB')
         query = command.get('query')
         color_r = int(query.get('R.uom56'))
         color_g = int(query.get('G.uom56'))
@@ -253,7 +255,6 @@ class HueColorLight(HueDimmLight):
         return self._send_command(hue_command, transtime, True)
 
     def setColorXY(self, command):
-        LOGGER.debug('Running: setColorXY')
         query = command.get('query')
         self.color_x = float(query.get('X.uom56'))
         self.color_y = float(query.get('Y.uom56'))
@@ -264,7 +265,6 @@ class HueColorLight(HueDimmLight):
         return self._send_command(hue_command, transtime, True)
 
     def setColor(self, command):
-        LOGGER.debug('Running: setColor')
         c_id = int(command.get('value')) - 1
         (self.color_x, self.color_y) = color_xy(c_id)
         hue_command = {'xy': [self.color_x, self.color_y]}
@@ -273,21 +273,18 @@ class HueColorLight(HueDimmLight):
         return self._send_command(hue_command, self.transitiontime, True)
 
     def setHue(self, command):
-        LOGGER.debug('Running: setHue')
         self.hue = int(command.get('value'))
         self.setDriver('GV3', self.hue)
         hue_command = { 'hue': self.hue }
         return self._send_command(hue_command, self.transitiontime, True)
 
     def setSat(self, command):
-        LOGGER.debug('Running: setSat')
         self.saturation = int(command.get('value'))
         self.setDriver('GV4', self.saturation)
         hue_command = { 'sat': self.saturation }
         return self._send_command(hue_command, self.transitiontime, True)
 
     def setColorHSB(self, command):
-        LOGGER.debug('Running: setColorHSB')
         query = command.get('query')
         self.hue = int(query.get('H.uom56'))
         self.saturation = int(query.get('S.uom56'))
@@ -343,7 +340,6 @@ class HueEColorLight(HueColorLight):
         return True
 
     def setCt(self, command):
-        LOGGER.debug('Running: setCt')
         self.ct = int(command.get('value'))
         self.setDriver('CLITEMP', self.ct)
         hue_command = { 'ct': kel2mired(self.ct) }

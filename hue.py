@@ -24,6 +24,7 @@ class Control(polyglot.Controller):
         self.discovery = False
         self.started = False
         self.hub = None
+        self.lights = None
         LOGGER.info('Started Hue Protocol')
                         
     def start(self):
@@ -37,7 +38,6 @@ class Control(polyglot.Controller):
 
     def connect(self):
         """ Connect to Phillips Hue Hub """
-        LOGGER.debug('Connect method called')
         # pylint: disable=broad-except
         # get hub settings
         try:
@@ -50,12 +50,13 @@ class Control(polyglot.Controller):
             return False  # bad ip Addressse:
         else:
             # ensure hub is connectable
-            api = self._get_api()
+            self.lights = self._get_lights()
 
-            if api:
-                self.setDriver('ST', 1)
+            if self.lights:
+                LOGGER.info('Connection OK')
                 return True
             else:
+                LOGGER.error('Connect: Failed to read Lights from the Hue Bridge')
                 self.hub = None
                 return False
 
@@ -66,14 +67,14 @@ class Control(polyglot.Controller):
         self.discovery = True
         LOGGER.info('Starting Hue discovery...')
 
-        api = self._get_api()
-        if not api:
+        self.lights = self._get_lights()
+        if not self.lights:
+            LOGGER.error('Discover: Failed to read Lights from the Hue Bridge')
             return False
-        devices = api['lights']
         
-        LOGGER.info('{} bulbs found. Checking status and adding to ISY if necessary.'.format(len(devices)))
+        LOGGER.info('{} bulbs found. Checking status and adding to ISY if necessary.'.format(len(self.lights)))
 
-        for lamp_id, data in devices.items():
+        for lamp_id, data in self.lights.items():
             address = id_2_addr(data['uniqueid'])
             name = data['name']
             
@@ -98,16 +99,16 @@ class Control(polyglot.Controller):
         return True
 
     def updateNodes(self):
+        self.lights = self._get_lights()
         for node in self.nodes:
             self.nodes[node].updateInfo()
 
     def updateInfo(self):
         pass
 
-    def _get_api(self):
-        """ get hue hub api data. """
+    def _get_lights(self):
         try:
-            api = self.hub.get_api()
+            lights = self.hub.get_light()
         except BadStatusLine:
             LOGGER.error('Hue Bridge returned bad status line.')
             return False
@@ -118,7 +119,7 @@ class Control(polyglot.Controller):
             LOGGER.error("Can't contact Hue Bridge. " +
                          "Network communication issue.")
             return False
-        return api
+        return lights
 
     def long_poll(self):
         """ Save configuration every 30 seconds. """
