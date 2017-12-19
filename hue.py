@@ -26,6 +26,7 @@ class Control(polyglot.Controller):
         self.hub = None
         self.lights = None
         self.bridge_ip = None
+        self.bridge_user = None
         LOGGER.info('Started Hue Protocol')
                         
     def start(self):
@@ -42,11 +43,15 @@ class Control(polyglot.Controller):
         # pylint: disable=broad-except
         # get hub settings
         custom_ip = self.polyConfig['customParams']['ip']
+        custom_user = self.polyConfig['customParams']['username']
         if custom_ip:
             LOGGER.info('Custom Bridge IP address specified: {}'.format(custom_ip))
             self.bridge_ip = custom_ip
+        if custom_user:
+            LOGGER.info('Custom Bridge Username specified: {}'.format(custom_user))
+            self.bridge_user = custom_user
         try:
-            self.hub = phue.Bridge( self.bridge_ip )
+            self.hub = phue.Bridge( self.bridge_ip, self.bridge_user )
         except phue.PhueRegistrationException:
             LOGGER.error('IP Address OK. Node Server not registered.')
             return False

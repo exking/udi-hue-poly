@@ -12,13 +12,16 @@ cd ~/.polyglot/nodeservers
 git clone https://github.com/exking/udi-hue-poly.git Hue
 ```
 
-Once installed - push the button on the Hue Bridge and add nodeserver into the Polyglot, that will allow it to pair with the Bridge.
+### Configuration
 
-If you have been using v1 of the Hue Poly - you will likely have a file named `bridges`
+Once installed - push the button on the Hue Bridge and add NodeServer into Polyglot, that will allow it to pair with the Bridge.
+If you have been using v1 of the Hue Poly - you will likely have a file named `bridges`, copy that file into `~/.python_hue` - you should be able to skip the pairing process and start this Poly out of the box.
 
-If you copy that file into `~/.python_hue` - you should be able to skip the pairing process and start this Poly out of the box.
+Sometimes automatic bridge IP address discovery fails, in that case - you can specify Bridge IP address in a custom parameter `ip` for the NodeServer using Polyglot's frontend interface. Additionally - if `username` parameter is given - NodeServer will use it (in case you have a username established already and don't want another one created on the Bridge).
 
-Note that Poly assumes that Bridge IP address never changes, so it is recommended that you create an IP address reservation for the Hue Bridge on your router.
+### Notes
+
+Poly assumes that Bridge IP address never change, so it is recommended that you create an IP address reservation for the Hue Bridge on your router.
 
 Please report any problems on the UDI user forum.
 
