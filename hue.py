@@ -9,6 +9,7 @@ except ImportError:
 import polyinterface as polyglot
 from node_types import HueDimmLight, HueWhiteLight, HueColorLight, HueEColorLight
 import sys
+import socket
 import phue
 
 LOGGER = polyglot.LOGGER
