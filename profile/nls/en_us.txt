@@ -93,3 +93,8 @@ CMDP-S-NAME = Saturation
 CMDP-BR-NAME = Brightness
 CMDP-K-NAME = Color Temperature
 CMDP-D-NAME = Transition Time
+
+PGM-CMD-HCL-SET_COLOR_RGB-FMT = /R// Red ${v}/ /G// Green ${v}/ /B// Blue ${v}/ /BR// Brightness ${v}/ /D// in ${v}/
+PGM-CMD-HCL-SET_COLOR_XY-FMT = /X// X ${v}/ /Y// Y ${v}/ /BR// Brightness ${v}/ /D// in ${v}/
+PGM-CMD-HCL-SET_HSB-FMT = /H// Hue ${v}/ /S// Saturation ${v}/ /BR// Brightness ${v}/ /D// in ${v}/
+PGM-CMD-HCL-SET_CTBR-FMT =  /K// Color Temperature ${v}/ /BR// Brightness ${v}/ /D// in ${v}/
