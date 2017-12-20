@@ -77,7 +77,6 @@ class HueDimmLight(polyglot.Node):
             val = command.get('value')
             if val:
                 self.brightness = self._validateBri(int(val))
-                self.st = bri2st(self.brightness)
                 hue_command['bri'] = self.brightness
                 self.setDriver('GV5', self.brightness)
             self.st = bri2st(self.brightness)
@@ -124,7 +123,6 @@ class HueDimmLight(polyglot.Node):
 
     def setBrightness(self, command):
         self.brightness = self._validateBri(int(command.get('value')))
-        self.st = bri2st(self.brightness)
         self.setDriver('GV5', self.brightness)
         self.setDriver('ST', self.st)
         hue_command = { 'bri': self.brightness }
@@ -146,6 +144,7 @@ class HueDimmLight(polyglot.Node):
             brightness = 254
         elif brightness < 1:
             brighness = 1
+        self.st = bri2st(brightness)
         return brightness
 
     def _send_command(self, command, transtime, checkOn):
@@ -156,9 +155,7 @@ class HueDimmLight(polyglot.Node):
             command['on'] = True
             self.on = True
             if self.saved_brightness:
-                """ Attempt to restore saved brightness
-                    xy or ct should take priority over bri
-                """
+                """ Attempt to restore saved brightness """
                 if 'bri' not in command:
                     command['bri'] = self.saved_brightness
                 self.saved_brightness = None
@@ -201,6 +198,16 @@ class HueWhiteLight(HueDimmLight):
         hue_command = { 'ct': kel2mired(self.ct) }
         return self._send_command(hue_command, self.transitiontime, True)
 
+    def setCtBri(self, command):
+        query = command.get('query')
+        self.brightness = self._validateBri(int(query.get('BR.uom56')))
+        self.ct = int(query.get('K.uom26'))
+        self.setDriver('CLITEMP', self.ct)
+        self.setDriver('ST', self.st)
+        self.setDriver('GV5', self.brightness)
+        hue_command = { 'ct': kel2mired(self.ct), 'bri': self.brightness }
+        return self._send_command(hue_command, self.transitiontime, True)
+
     drivers = [ {'driver': 'ST', 'value': 0, 'uom': 51},
                 {'driver': 'GV5', 'value': 0, 'uom': 56},
                 {'driver': 'CLITEMP', 'value': 0, 'uom': 26},
@@ -213,7 +220,7 @@ class HueWhiteLight(HueDimmLight):
                    'DFON': HueDimmLight.setBaseCtl, 'DFOF': HueDimmLight.setBaseCtl, 'BRT': HueDimmLight.setBaseCtl,
                    'DIM': HueDimmLight.setBaseCtl, 'FDUP': HueDimmLight.setBaseCtl, 'FDDOWN': HueDimmLight.setBaseCtl,
                    'FDSTOP': HueDimmLight.setBaseCtl, 'SET_BRI': HueDimmLight.setBrightness, 'SET_DUR': HueDimmLight.setTransition,
-                   'SET_KEL': setCt, 'SET_ALERT': HueDimmLight.setAlert
+                   'SET_KEL': setCt, 'SET_ALERT': HueDimmLight.setAlert, 'SET_CTBR': setCtBri
                }
 
     id = 'WHITE_LIGHT'
@@ -248,10 +255,13 @@ class HueColorLight(HueDimmLight):
         color_g = int(query.get('G.uom56'))
         color_b = int(query.get('B.uom56'))
         transtime = int(query.get('D.uom42'))
+        self.brightness = self._validateBri(int(query.get('BR.uom56')))
         (self.color_x, self.color_y) = RGB_2_xy(color_r, color_g, color_b)
-        hue_command = {'xy': [self.color_x, self.color_y]}
+        hue_command = {'xy': [self.color_x, self.color_y], 'bri': self.brightness}
         self.setDriver('GV1', self.color_x)
         self.setDriver('GV2', self.color_y)
+        self.setDriver('GV5', self.brightness)
+        self.setDriver('ST', self.st)
         return self._send_command(hue_command, transtime, True)
 
     def setColorXY(self, command):
@@ -259,9 +269,12 @@ class HueColorLight(HueDimmLight):
         self.color_x = float(query.get('X.uom56'))
         self.color_y = float(query.get('Y.uom56'))
         transtime = int(query.get('D.uom42'))
-        hue_command = {'xy': [self.color_x, self.color_y]}
+        self.brightness = self._validateBri(int(query.get('BR.uom56')))
+        hue_command = {'xy': [self.color_x, self.color_y], 'bri': self.brightness}
         self.setDriver('GV1', self.color_x)
         self.setDriver('GV2', self.color_y)            
+        self.setDriver('GV5', self.brightness)
+        self.setDriver('ST', self.st)
         return self._send_command(hue_command, transtime, True)
 
     def setColor(self, command):
@@ -288,9 +301,8 @@ class HueColorLight(HueDimmLight):
         query = command.get('query')
         self.hue = int(query.get('H.uom56'))
         self.saturation = int(query.get('S.uom56'))
-        self.brightness = int(query.get('B.uom56'))
+        self.brightness = self._validateBri(int(query.get('BR.uom56')))
         transtime = int(query.get('D.uom42'))
-        self.st = bri2st(self.brightness)
         hue_command = {'hue': self.hue, 'sat': self.saturation, 'bri': self.brightness}
         self.setDriver('GV3', self.hue)
         self.setDriver('GV4', self.saturation)
@@ -345,6 +357,16 @@ class HueEColorLight(HueColorLight):
         hue_command = { 'ct': kel2mired(self.ct) }
         return self._send_command(hue_command, self.transitiontime, True)
 
+    def setCtBri(self, command):
+        query = command.get('query')
+        self.brightness = self._validateBri(int(query.get('BR.uom56')))
+        self.ct = int(query.get('K.uom26'))
+        self.setDriver('CLITEMP', self.ct)
+        self.setDriver('ST', self.st)
+        self.setDriver('GV5', self.brightness)
+        hue_command = { 'ct': kel2mired(self.ct), 'bri': self.brightness }
+        return self._send_command(hue_command, self.transitiontime, True)
+
     drivers = [ {'driver': 'ST', 'value': 0, 'uom': 51},
                 {'driver': 'GV1', 'value': 0, 'uom': 56},
                 {'driver': 'GV2', 'value': 0, 'uom': 56},
@@ -363,7 +385,8 @@ class HueEColorLight(HueColorLight):
                    'FDSTOP': HueDimmLight.setBaseCtl, 'SET_BRI': HueDimmLight.setBrightness, 'SET_DUR': HueDimmLight.setTransition,
                    'SET_COLOR': HueColorLight.setColor, 'SET_HUE': HueColorLight.setHue, 'SET_SAT': HueColorLight.setSat,
                    'SET_KEL': setCt, 'SET_HSB': HueColorLight.setColorHSB, 'SET_COLOR_RGB': HueColorLight.setColorRGB,
-                   'SET_COLOR_XY': HueColorLight.setColorXY, 'SET_ALERT': HueDimmLight.setAlert, 'SET_EFFECT': HueColorLight.setEffect
+                   'SET_COLOR_XY': HueColorLight.setColorXY, 'SET_ALERT': HueDimmLight.setAlert, 'SET_EFFECT': HueColorLight.setEffect,
+                   'SET_CTBR': setCtBri
                }
 
     id = 'ECOLOR_LIGHT'
