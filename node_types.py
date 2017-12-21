@@ -1,8 +1,6 @@
 """ Node classes used by the Hue Node Server. """
 
 from converters import RGB_2_xy, color_xy, bri2st, kel2mired
-from functools import partial
-import json
 import polyinterface as polyglot
 
 LOGGER = polyglot.LOGGER
