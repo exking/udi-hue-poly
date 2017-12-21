@@ -34,6 +34,7 @@ class HueDimmLight(polyglot.Node):
     def query(self, command = None):
         self.data = self.parent.hub.get_light(self.lamp_id)
         self._updateInfo()
+        self.reportDrivers()
         
     def updateInfo(self):
         self.data = self.parent.lights[str(self.lamp_id)]
