@@ -23,9 +23,9 @@ class Control(polyglot.Controller):
         self.address = 'huebridge'
         self.primary = self.address
         self.discovery = False
-        self.started = False
         self.hub = None
         self.lights = None
+        self.groups = None
         self.bridge_ip = None
         self.bridge_user = None
         LOGGER.info('Started Hue Protocol')
@@ -79,6 +79,7 @@ class Control(polyglot.Controller):
         self.lights = self._get_lights()
         if not self.lights:
             LOGGER.error('Discover: Failed to read Lights from the Hue Bridge')
+            self.discovery = False
             return False
         
         LOGGER.info('{} bulbs found. Checking status and adding to ISY if necessary.'.format(len(self.lights)))
@@ -103,6 +104,23 @@ class Control(polyglot.Controller):
                 else:
                     LOGGER.info('Found Unsupported {} Bulb: {}({})'.format(data['type'], name, address))
         
+        self.groups = self._get_groups()
+        if not self.groups:
+            LOGGER.error('Discover: Failed to read Groups from the Hue Bridge')
+            self.discovery = False
+            return False
+        
+        LOGGER.info('{} groups found. Checking status and adding to ISY if necessary.'.format(len(self.lights)))
+
+        for group_id, data in self.groups.items():
+            address = 'huegrp'+group_id
+            name = data['name']
+            
+            if not address in self.nodes:
+                if 'lights' in data and len(data['lights']) > 0:
+                    LOGGER.info("Found {} {} with {} light(s)".format(data['type'], name, len(data['lights'])))
+#                    self.addNode(HueGroup(self, self.address, address, name, group_id, data))
+        
         LOGGER.info('Discovery complete')
         self.discovery = False
         return True
@@ -119,6 +137,8 @@ class Control(polyglot.Controller):
         pass
 
     def _get_lights(self):
+        if self.hub is None:
+            return None
         try:
             lights = self.hub.get_light()
         except BadStatusLine:
@@ -132,6 +152,23 @@ class Control(polyglot.Controller):
                          "Network communication issue.")
             return False
         return lights
+
+    def _get_groups(self):
+        if self.hub is None:
+            return None
+        try:
+            groups = self.hub.get_group()
+        except BadStatusLine:
+            LOGGER.error('Hue Bridge returned bad status line.')
+            return False
+        except phue.PhueRequestTimeout:
+            LOGGER.error('Timed out trying to connect to Hue Bridge.')
+            return False
+        except socket.error:
+            LOGGER.error("Can't contact Hue Bridge. " +
+                         "Network communication issue.")
+            return False
+        return groups
 
     def long_poll(self):
         """ Save configuration every 30 seconds. """

@@ -9,59 +9,36 @@ LOGGER = polyglot.LOGGER
 
 """ Hue Default transition time is 400ms """
 DEF_TRANSTIME = 400
+""" Increment for DIM and BRT commands """
+DEF_INCREMENT = 10
+""" Transition time for FadeUp/Down commands """
 FADE_TRANSTIME = 4000
+
 HUE_EFFECTS = ['none', 'colorloop']
 HUE_ALERTS = ['none', 'select', 'lselect']
 
-class HueDimmLight(polyglot.Node):
-    """ Node representing Hue Dimmable Light """
+class HueBase(polyglot.Node):
+    """ Base class for lights and groups """
 
-    def __init__(self, parent, primary, address, name, lamp_id, device):
+    def __init__(self, parent, primary, address, name, element_id, element):
         super().__init__(parent, primary, address, name)
-        self.lamp_id = int(lamp_id)
         self.name = name
+        self.element_id = int(element_id)
+        self.data = element
         self.on = None
         self.st = None
         self.brightness = None
         self.saved_brightness = None
         self.alert = None
         self.transitiontime = DEF_TRANSTIME
-        self.reachable = None
+        self.ct = None
+        self.hue = None
+        self.saturation = None
+        self.color_x = None
+        self.color_y = None
+        self.effect = None
 
-    def start(self):
-        self.query()
-        
-    def query(self, command = None):
-        self.data = self.parent.hub.get_light(self.lamp_id)
-        self._updateInfo()
-        self.reportDrivers()
-        
-    def updateInfo(self):
-        self.data = self.parent.lights[str(self.lamp_id)]
-        self._updateInfo()
-
-    def _updateInfo(self):
-        self.on = self.data['state']['on']
-        self.brightness = self.data['state']['bri']
-        self.st = bri2st(self.data['state']['bri'])
-        self.reachable = self.data['state']['reachable']
-        self.alert = self.data['state']['alert']
-
-        self.setDriver('GV5', self.brightness)
-
-        if self.reachable:
-            self.setDriver('GV6', 1)
-        else:
-            self.setDriver('GV6', 0)
-
-        if self.on:
-            self.setDriver('ST', self.st)
-        else:
-            self.setDriver('ST', 0)
-
-        self.setDriver('RR', self.transitiontime)
-        return True
-
+    """ Basic On/Off and brightness controls """
     def setBaseCtl(self, command):
         cmd = command.get('cmd')
 
@@ -95,11 +72,11 @@ class HueDimmLight(polyglot.Node):
                 self.saved_brightness = self.brightness
         elif cmd == 'BRT' or cmd == 'DIM' or cmd == 'FDUP' or cmd == 'FDDOWN' or cmd == 'FDSTOP':
             if cmd == 'BRT':
-                increment = 10
+                increment = DEF_INCREMENT
                 if self.brightness + increment > 254:
                     increment = 254 - self.brightness
             elif cmd == 'DIM':
-                increment = -10
+                increment = -DEF_INCREMENT
                 if self.brightness + increment < 1:
                     increment = 1 - self.brightness
             elif cmd == 'FDUP':
@@ -148,51 +125,6 @@ class HueDimmLight(polyglot.Node):
         self.st = bri2st(brightness)
         return brightness
 
-    def _send_command(self, command, transtime, checkOn):
-        """ generic method to send command to light """
-        if transtime != DEF_TRANSTIME:
-            command['transitiontime'] = int(round(transtime / 100))
-        if checkOn and self.on != True:
-            command['on'] = True
-            self.on = True
-            if self.saved_brightness:
-                """ Attempt to restore saved brightness """
-                if 'bri' not in command:
-                    command['bri'] = self.saved_brightness
-                self.saved_brightness = None
-        responses = self.parent.hub.set_light(self.lamp_id, command)
-        return all(
-            [list(resp.keys())[0] == 'success' for resp in responses[0]])
-
-    drivers = [ {'driver': 'ST', 'value': 0, 'uom': 51},
-                {'driver': 'GV5', 'value': 0, 'uom': 56},
-                {'driver': 'RR', 'value': 0, 'uom': 42},
-                {'driver': 'GV6', 'value': 0, 'uom': 2}
-              ]
-
-    commands = {
-                   'DON': setBaseCtl, 'DOF': setBaseCtl, 'QUERY': query,
-                   'DFON': setBaseCtl, 'DFOF': setBaseCtl, 'BRT': setBaseCtl,
-                   'DIM': setBaseCtl, 'FDUP': setBaseCtl, 'FDDOWN': setBaseCtl,
-                   'FDSTOP': setBaseCtl, 'SET_BRI': setBrightness, 'SET_DUR': setTransition,
-                   'SET_ALERT': setAlert
-               }
-
-    id = 'DIMM_LIGHT'
-
-class HueWhiteLight(HueDimmLight):
-    """ Node representing Hue Color Light """
-
-    def __init__(self, parent, primary, address, name, lamp_id, device):
-        super().__init__(parent, primary, address, name, lamp_id, device)
-        self.ct = None
-
-    def updateInfo(self):
-        super().updateInfo()
-        self.ct = kel2mired(self.data['state']['ct'])
-        self.setDriver('CLITEMP', self.ct)
-        return True
-
     def setCt(self, command):
         self.ct = int(command.get('value'))
         self.setDriver('CLITEMP', self.ct)
@@ -208,47 +140,6 @@ class HueWhiteLight(HueDimmLight):
         self.setDriver('GV5', self.brightness)
         hue_command = { 'ct': kel2mired(self.ct), 'bri': self.brightness }
         return self._send_command(hue_command, self.transitiontime, True)
-
-    drivers = [ {'driver': 'ST', 'value': 0, 'uom': 51},
-                {'driver': 'GV5', 'value': 0, 'uom': 56},
-                {'driver': 'CLITEMP', 'value': 0, 'uom': 26},
-                {'driver': 'RR', 'value': 0, 'uom': 42},
-                {'driver': 'GV6', 'value': 0, 'uom': 2}
-              ]
-
-    commands = {
-                   'DON': HueDimmLight.setBaseCtl, 'DOF': HueDimmLight.setBaseCtl, 'QUERY': HueDimmLight.query,
-                   'DFON': HueDimmLight.setBaseCtl, 'DFOF': HueDimmLight.setBaseCtl, 'BRT': HueDimmLight.setBaseCtl,
-                   'DIM': HueDimmLight.setBaseCtl, 'FDUP': HueDimmLight.setBaseCtl, 'FDDOWN': HueDimmLight.setBaseCtl,
-                   'FDSTOP': HueDimmLight.setBaseCtl, 'SET_BRI': HueDimmLight.setBrightness, 'SET_DUR': HueDimmLight.setTransition,
-                   'SET_KEL': setCt, 'SET_ALERT': HueDimmLight.setAlert, 'SET_CTBR': setCtBri
-               }
-
-    id = 'WHITE_LIGHT'
-
-class HueColorLight(HueDimmLight):
-    """ Node representing Hue Color Light """
-
-    def __init__(self, parent, primary, address, name, lamp_id, device):
-        super().__init__(parent, primary, address, name, lamp_id, device)
-        self.hue = None
-        self.saturation = None
-        self.color_x = None
-        self.color_y = None
-        self.effect = None
-
-    def updateInfo(self):
-        super().updateInfo()
-        self.effect = self.data['state']['effect']
-        (self.color_x, self.color_y) = [round(float(val), 4)
-                              for val in self.data['state'].get('xy',[0.0,0.0])]
-        self.hue = self.data['state']['hue']
-        self.saturation = self.data['state']['sat']
-        self.setDriver('GV1', self.color_x)
-        self.setDriver('GV2', self.color_y)
-        self.setDriver('GV3', self.hue)
-        self.setDriver('GV4', self.saturation)
-        return True
 
     def setColorRGB(self, command):
         query = command.get('query')
@@ -317,6 +208,128 @@ class HueColorLight(HueDimmLight):
         hue_command = { 'effect': self.effect }
         return self._send_command(hue_command, self.transitiontime, True)
 
+    def _send_command(self, command, transtime, checkOn):
+        pass
+
+    drivers = []
+    commands = {}
+    id = ''
+
+class HueDimmLight(HueBase):
+    """ Node representing Hue Dimmable Light """
+
+    def __init__(self, parent, primary, address, name, element_id, device):
+        super().__init__(parent, primary, address, name, element_id, device)
+        self.reachable = None
+
+    def start(self):
+        self.updateInfo()
+        
+    def query(self, command = None):
+        self.data = self.parent.hub.get_light(self.element_id)
+        self._updateInfo()
+        self.reportDrivers()
+        
+    def updateInfo(self):
+        self.data = self.parent.lights[str(self.element_id)]
+        self._updateInfo()
+
+    def _updateInfo(self):
+        self.on = self.data['state']['on']
+        self.brightness = self.data['state']['bri']
+        self.st = bri2st(self.data['state']['bri'])
+        self.reachable = self.data['state']['reachable']
+        self.alert = self.data['state']['alert']
+
+        self.setDriver('GV5', self.brightness)
+
+        if self.reachable:
+            self.setDriver('GV6', 1)
+        else:
+            self.setDriver('GV6', 0)
+
+        if self.on:
+            self.setDriver('ST', self.st)
+        else:
+            self.setDriver('ST', 0)
+
+        self.setDriver('RR', self.transitiontime)
+        return True
+
+    def _send_command(self, command, transtime, checkOn):
+        """ generic method to send command to light """
+        if transtime != DEF_TRANSTIME:
+            command['transitiontime'] = int(round(transtime / 100))
+        if checkOn and self.on != True:
+            command['on'] = True
+            self.on = True
+            if self.saved_brightness:
+                """ Attempt to restore saved brightness """
+                if 'bri' not in command:
+                    command['bri'] = self.saved_brightness
+                self.saved_brightness = None
+        responses = self.parent.hub.set_light(self.element_id, command)
+        return all(
+            [list(resp.keys())[0] == 'success' for resp in responses[0]])
+
+    drivers = [ {'driver': 'ST', 'value': 0, 'uom': 51},
+                {'driver': 'GV5', 'value': 0, 'uom': 56},
+                {'driver': 'RR', 'value': 0, 'uom': 42},
+                {'driver': 'GV6', 'value': 0, 'uom': 2}
+              ]
+
+    commands = {
+                   'DON': HueBase.setBaseCtl, 'DOF': HueBase.setBaseCtl, 'QUERY': query,
+                   'DFON': HueBase.setBaseCtl, 'DFOF': HueBase.setBaseCtl, 'BRT': HueBase.setBaseCtl,
+                   'DIM': HueBase.setBaseCtl, 'FDUP': HueBase.setBaseCtl, 'FDDOWN': HueBase.setBaseCtl,
+                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'SET_DUR': HueBase.setTransition,
+                   'SET_ALERT': HueBase.setAlert
+               }
+
+    id = 'DIMM_LIGHT'
+
+class HueWhiteLight(HueDimmLight):
+    """ Node representing Hue White Light """
+
+    def _updateInfo(self):
+        super()._updateInfo()
+        self.ct = kel2mired(self.data['state']['ct'])
+        self.setDriver('CLITEMP', self.ct)
+        return True
+
+    drivers = [ {'driver': 'ST', 'value': 0, 'uom': 51},
+                {'driver': 'GV5', 'value': 0, 'uom': 56},
+                {'driver': 'CLITEMP', 'value': 0, 'uom': 26},
+                {'driver': 'RR', 'value': 0, 'uom': 42},
+                {'driver': 'GV6', 'value': 0, 'uom': 2}
+              ]
+
+    commands = {
+                   'DON': HueBase.setBaseCtl, 'DOF': HueBase.setBaseCtl, 'QUERY': HueDimmLight.query,
+                   'DFON': HueBase.setBaseCtl, 'DFOF': HueBase.setBaseCtl, 'BRT': HueBase.setBaseCtl,
+                   'DIM': HueBase.setBaseCtl, 'FDUP': HueBase.setBaseCtl, 'FDDOWN': HueBase.setBaseCtl,
+                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'SET_DUR': HueBase.setTransition,
+                   'SET_KEL': HueBase.setCt, 'SET_ALERT': HueBase.setAlert, 'SET_CTBR': HueBase.setCtBri
+               }
+
+    id = 'WHITE_LIGHT'
+
+class HueColorLight(HueDimmLight):
+    """ Node representing Hue Color Light """
+
+    def _updateInfo(self):
+        super()._updateInfo()
+        self.effect = self.data['state']['effect']
+        (self.color_x, self.color_y) = [round(float(val), 4)
+                              for val in self.data['state'].get('xy',[0.0,0.0])]
+        self.hue = self.data['state']['hue']
+        self.saturation = self.data['state']['sat']
+        self.setDriver('GV1', self.color_x)
+        self.setDriver('GV2', self.color_y)
+        self.setDriver('GV3', self.hue)
+        self.setDriver('GV4', self.saturation)
+        return True
+
     drivers = [ {'driver': 'ST', 'value': 0, 'uom': 51},
                 {'driver': 'GV1', 'value': 0, 'uom': 56},
                 {'driver': 'GV2', 'value': 0, 'uom': 56},
@@ -328,13 +341,13 @@ class HueColorLight(HueDimmLight):
               ]
 
     commands = {
-                   'DON': HueDimmLight.setBaseCtl, 'DOF': HueDimmLight.setBaseCtl, 'QUERY': HueDimmLight.query,
-                   'DFON': HueDimmLight.setBaseCtl, 'DFOF': HueDimmLight.setBaseCtl, 'BRT': HueDimmLight.setBaseCtl,
-                   'DIM': HueDimmLight.setBaseCtl, 'FDUP': HueDimmLight.setBaseCtl, 'FDDOWN': HueDimmLight.setBaseCtl,
-                   'FDSTOP': HueDimmLight.setBaseCtl, 'SET_BRI': HueDimmLight.setBrightness, 'SET_DUR': HueDimmLight.setTransition,
-                   'SET_COLOR': setColor, 'SET_HUE': setHue, 'SET_SAT': setSat, 'SET_HSB': setColorHSB,
-                   'SET_COLOR_RGB': setColorRGB, 'SET_COLOR_XY': setColorXY, 'SET_ALERT': HueDimmLight.setAlert,
-                   'SET_EFFECT': setEffect
+                   'DON': HueBase.setBaseCtl, 'DOF': HueBase.setBaseCtl, 'QUERY': HueDimmLight.query,
+                   'DFON': HueBase.setBaseCtl, 'DFOF': HueBase.setBaseCtl, 'BRT': HueBase.setBaseCtl,
+                   'DIM': HueBase.setBaseCtl, 'FDUP': HueBase.setBaseCtl, 'FDDOWN': HueBase.setBaseCtl,
+                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'SET_DUR': HueBase.setTransition,
+                   'SET_COLOR': HueBase.setColor, 'SET_HUE': HueBase.setHue, 'SET_SAT': HueBase.setSat, 'SET_HSB': HueBase.setColorHSB,
+                   'SET_COLOR_RGB': HueBase.setColorRGB, 'SET_COLOR_XY': HueBase.setColorXY, 'SET_ALERT': HueBase.setAlert,
+                   'SET_EFFECT': HueBase.setEffect
                }
 
     id = 'COLOR_LIGHT'
@@ -342,31 +355,11 @@ class HueColorLight(HueDimmLight):
 class HueEColorLight(HueColorLight):
     """ Node representing Hue Color Light """
 
-    def __init__(self, parent, primary, address, name, lamp_id, device):
-        super().__init__(parent, primary, address, name, lamp_id, device)
-        self.ct = None
-
-    def updateInfo(self):
-        super().updateInfo()
+    def _updateInfo(self):
+        super()._updateInfo()
         self.ct = kel2mired(self.data['state']['ct'])
         self.setDriver('CLITEMP', self.ct)
         return True
-
-    def setCt(self, command):
-        self.ct = int(command.get('value'))
-        self.setDriver('CLITEMP', self.ct)
-        hue_command = { 'ct': kel2mired(self.ct) }
-        return self._send_command(hue_command, self.transitiontime, True)
-
-    def setCtBri(self, command):
-        query = command.get('query')
-        self.brightness = self._validateBri(int(query.get('BR.uom56')))
-        self.ct = int(query.get('K.uom26'))
-        self.setDriver('CLITEMP', self.ct)
-        self.setDriver('ST', self.st)
-        self.setDriver('GV5', self.brightness)
-        hue_command = { 'ct': kel2mired(self.ct), 'bri': self.brightness }
-        return self._send_command(hue_command, self.transitiontime, True)
 
     drivers = [ {'driver': 'ST', 'value': 0, 'uom': 51},
                 {'driver': 'GV1', 'value': 0, 'uom': 56},
@@ -380,14 +373,14 @@ class HueEColorLight(HueColorLight):
               ]
 
     commands = {
-                   'DON': HueDimmLight.setBaseCtl, 'DOF': HueDimmLight.setBaseCtl, 'QUERY': HueDimmLight.query,
-                   'DFON': HueDimmLight.setBaseCtl, 'DFOF': HueDimmLight.setBaseCtl, 'BRT': HueDimmLight.setBaseCtl,
-                   'DIM': HueDimmLight.setBaseCtl, 'FDUP': HueDimmLight.setBaseCtl, 'FDDOWN': HueDimmLight.setBaseCtl,
-                   'FDSTOP': HueDimmLight.setBaseCtl, 'SET_BRI': HueDimmLight.setBrightness, 'SET_DUR': HueDimmLight.setTransition,
-                   'SET_COLOR': HueColorLight.setColor, 'SET_HUE': HueColorLight.setHue, 'SET_SAT': HueColorLight.setSat,
-                   'SET_KEL': setCt, 'SET_HSB': HueColorLight.setColorHSB, 'SET_COLOR_RGB': HueColorLight.setColorRGB,
-                   'SET_COLOR_XY': HueColorLight.setColorXY, 'SET_ALERT': HueDimmLight.setAlert, 'SET_EFFECT': HueColorLight.setEffect,
-                   'SET_CTBR': setCtBri
+                   'DON': HueBase.setBaseCtl, 'DOF': HueBase.setBaseCtl, 'QUERY': HueDimmLight.query,
+                   'DFON': HueBase.setBaseCtl, 'DFOF': HueBase.setBaseCtl, 'BRT': HueBase.setBaseCtl,
+                   'DIM': HueBase.setBaseCtl, 'FDUP': HueBase.setBaseCtl, 'FDDOWN': HueBase.setBaseCtl,
+                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'SET_DUR': HueBase.setTransition,
+                   'SET_COLOR': HueBase.setColor, 'SET_HUE': HueBase.setHue, 'SET_SAT': HueBase.setSat,
+                   'SET_KEL': HueBase.setCt, 'SET_HSB': HueBase.setColorHSB, 'SET_COLOR_RGB': HueBase.setColorRGB,
+                   'SET_COLOR_XY': HueBase.setColorXY, 'SET_ALERT': HueBase.setAlert, 'SET_EFFECT': HueBase.setEffect,
+                   'SET_CTBR': HueBase.setCtBri
                }
 
     id = 'ECOLOR_LIGHT'
