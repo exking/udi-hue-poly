@@ -110,9 +110,12 @@ class Control(polyglot.Controller):
         return True
 
     def updateNodes(self):
+        if self.hub is None or self.discovery == True:
+            return True
         self.lights = self._get_lights()
         for node in self.nodes:
             self.nodes[node].updateInfo()
+        return True
 
     def updateInfo(self):
         pass
