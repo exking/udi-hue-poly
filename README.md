@@ -27,3 +27,7 @@ Please report any problems on the UDI user forum.
 
 Thanks and good luck.
 
+### History
+1. [Phue](https://github.com/studioimaginaire/phue) Library with minor modifications is used as a backend.
+2. [Original Implementation](https://github.com/UniversalDevicesInc/Polyglot) of the Hue Poly by UniversalDevices team was a base.
+3. [LiFX Poly](https://github.com/Einstein42/udi-lifx-poly) was used as a template in order to re-write this Poly for [Polyglot v2](https://github.com/Einstein42/udi-polyglotv2)
