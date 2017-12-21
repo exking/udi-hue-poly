@@ -1,6 +1,6 @@
 # UDI Polyglot v2 Philips Hue Poly 
 
-This Poly provides an interface between Hue Bridge and Polyglot v2 server.
+This Poly provides an interface between Hue Bridge and [Polyglot v2](https://github.com/Einstein42/udi-polyglotv2) server.
 All Philips branded bulbs are supported (Dimmable, White, Color and Extended Color),
 bulbs could be added to the Insteon scenes as responders and should respond to all basic commands, including dimming.
 
