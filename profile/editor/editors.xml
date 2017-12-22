@@ -60,4 +60,9 @@
         <range uom="42" min="0" max="3000" prec="0" step="100" />
     </editor>
         
+    <!-- Number of Lights Editor -->
+    <editor id="HGRNUM">
+        <range uom="56" min="0" max="50" prec="0" step="1" />
+    </editor>
+
 </editors>

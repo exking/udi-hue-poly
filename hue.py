@@ -7,7 +7,7 @@ try:
 except ImportError:
     from http.client import BadStatusLine  # Python 3.x
 import polyinterface as polyglot
-from node_types import HueDimmLight, HueWhiteLight, HueColorLight, HueEColorLight
+from node_types import HueDimmLight, HueWhiteLight, HueColorLight, HueEColorLight, HueGroup
 import sys
 import socket
 import phue
@@ -114,12 +114,19 @@ class Control(polyglot.Controller):
 
         for group_id, data in self.groups.items():
             address = 'huegrp'+group_id
-            name = data['name']
+            if group_id == '0':
+                name = 'All Lights'
+            else:
+                name = data['name']
             
-            if not address in self.nodes:
-                if 'lights' in data and len(data['lights']) > 0:
+            if 'lights' in data and len(data['lights']) > 0:
+                if not address in self.nodes:
                     LOGGER.info("Found {} {} with {} light(s)".format(data['type'], name, len(data['lights'])))
-#                    self.addNode(HueGroup(self, self.address, address, name, group_id, data))
+                    self.addNode(HueGroup(self, self.address, address, name, group_id, data))
+            else:
+                if address in self.nodes:
+                    LOGGER.info("{} {} does not have any lights in it, removing a node".format(data['type'], name))
+                    self.delNode(address)
         
         LOGGER.info('Discovery complete')
         self.discovery = False
@@ -129,6 +136,7 @@ class Control(polyglot.Controller):
         if self.hub is None or self.discovery == True:
             return True
         self.lights = self._get_lights()
+        self.groups = self._get_groups()
         for node in self.nodes:
             self.nodes[node].updateInfo()
         return True

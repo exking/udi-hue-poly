@@ -382,3 +382,174 @@ class HueEColorLight(HueColorLight):
                }
 
     id = 'ECOLOR_LIGHT'
+
+class HueGroup(HueBase):
+    """ Node representing a group of Hue Lights """
+
+    def __init__(self, parent, primary, address, name, element_id, device):
+        super().__init__(parent, primary, address, name, element_id, device)
+        self.devcount = None
+        self.all_on = None
+
+    def start(self):
+        self.updateInfo()
+        
+    def query(self, command = None):
+        self.data = self.parent.hub.get_group(self.element_id)
+        self._updateInfo()
+        self.reportDrivers()
+        
+    def updateInfo(self):
+        self.data = self.parent.groups[str(self.element_id)]
+        self._updateInfo()
+
+    def _updateInfo(self):
+        self.devcount = len(self.data['lights'])
+
+        if self.devcount < 1:
+            LOGGER.info("{} {} has {} lights, skipping updates".format(self.data['type'], self.data['name'], self.devcount))
+            return False
+        else:
+            self.setDriver('GV6', self.devcount)
+
+        self.on = self.data['state']['any_on']
+        self.all_on = self.data['state']['all_on']
+
+        self.brightness = self.data['action']['bri']
+        self.setDriver('GV5', self.brightness)
+
+        self.st = bri2st(self.data['action']['bri'])
+        if self.on:
+            self.setDriver('ST', self.st)
+        else:
+            self.setDriver('ST', 0)
+
+        self.alert = self.data['action']['alert']
+
+        if 'ct' in self.data['action']:
+            self.ct = kel2mired(self.data['action']['ct'])
+            self.setDriver('CLITEMP', self.ct)
+        else:
+            self.setDriver('CLITEMP', 0)
+
+        if 'effect' in self.data['action']:
+            self.effect = self.data['action']['effect']
+
+        if 'xy' in self.data['action']:
+            (self.color_x, self.color_y) = [round(float(val), 4)
+                              for val in self.data['action'].get('xy',[0.0,0.0])]
+            self.setDriver('GV1', self.color_x)
+            self.setDriver('GV2', self.color_y)
+        else:
+            self.setDriver('GV1', 0)
+            self.setDriver('GV2', 0)
+
+        if 'hue' in self.data['action']:
+            self.hue = self.data['action']['hue']
+            self.setDriver('GV3', self.hue)
+        else:
+            self.setDriver('GV3', 0)
+
+        if 'sat' in self.data['action']:
+            self.saturation = self.data['action']['sat']
+            self.setDriver('GV4', self.saturation)
+        else:
+            self.setDriver('GV4', 0)
+
+        self.setDriver('RR', self.transitiontime)
+        return True
+
+    def setCt(self, command):
+        if 'ct' not in self.data['action']:
+            LOGGER.info("{} {} does not have Color temperature lights but CT command is received".format(self.data['type'], self.data['name']))
+            return False
+        super().setCt(command)
+
+    def setCtBri(self, command):
+        if 'ct' not in self.data['action']:
+            LOGGER.info("{} {} does not have Color temperature lights but CTBR command is received".format(self.data['type'], self.data['name']))
+            return False
+        super().setCtBri(command)
+
+    def setColorRGB(self, command):
+        if 'xy' not in self.data['action']:
+            LOGGER.info("{} {} does not have Color lights but RGB command is received".format(self.data['type'], self.data['name']))
+            return False
+        super().setColorRGB(command)
+
+    def setColorXY(self, command):
+        if 'xy' not in self.data['action']:
+            LOGGER.info("{} {} does not have Color lights but XY command is received".format(self.data['type'], self.data['name']))
+            return False
+        super().setColorXY(command)
+
+    def setColor(self, command):
+        if 'xy' not in self.data['action']:
+            LOGGER.info("{} {} does not have Color lights but Color command is received".format(self.data['type'], self.data['name']))
+            return False
+        super().setColor(command)
+
+    def setHue(self, command):
+        if 'hue' not in self.data['action']:
+            LOGGER.info("{} {} does not have Color lights but HUE command is received".format(self.data['type'], self.data['name']))
+            return False
+        super().setHue(command)
+
+    def setSat(self, command):
+        if 'sat' not in self.data['action']:
+            LOGGER.info("{} {} does not have Color lights but SAT command is received".format(self.data['type'], self.data['name']))
+            return False
+        super().setSat(command)
+
+    def setColorHSB(self, command):
+        if 'hue' not in self.data['action']:
+            LOGGER.info("{} {} does not have Color lights but HSB command is received".format(self.data['type'], self.data['name']))
+            return False
+        super().setColorHSB(command)
+
+    def setEffect(self, command):
+        if 'effect' not in self.data['action']:
+            LOGGER.info("{} {} does not have Color lights but EFFECT command is received".format(self.data['type'], self.data['name']))
+            return False
+        super().setEffect(command)
+
+    def _send_command(self, command, transtime, checkOn):
+        """ generic method to send command to light """
+        if transtime != DEF_TRANSTIME:
+            command['transitiontime'] = int(round(transtime / 100))
+        if checkOn and self.all_on != True:
+            command['on'] = True
+            self.all_on = True
+            if self.saved_brightness:
+                """ Attempt to restore saved brightness """
+                if 'bri' not in command:
+                    command['bri'] = self.saved_brightness
+                self.saved_brightness = None
+        responses = self.parent.hub.set_group(self.element_id, command)
+        return all(
+            [list(resp.keys())[0] == 'success' for resp in responses[0]])
+
+    drivers = [ {'driver': 'ST', 'value': 0, 'uom': 51},
+                {'driver': 'GV1', 'value': 0, 'uom': 56},
+                {'driver': 'GV2', 'value': 0, 'uom': 56},
+                {'driver': 'GV3', 'value': 0, 'uom': 56},
+                {'driver': 'GV4', 'value': 0, 'uom': 56},
+                {'driver': 'GV5', 'value': 0, 'uom': 56},
+                {'driver': 'GV6', 'value': 0, 'uom': 56},
+                {'driver': 'CLITEMP', 'value': 0, 'uom': 26},
+                {'driver': 'RR', 'value': 0, 'uom': 42}
+              ]
+
+    commands = {
+                   'DON': HueBase.setBaseCtl, 'DOF': HueBase.setBaseCtl, 'QUERY': query,
+                   'DFON': HueBase.setBaseCtl, 'DFOF': HueBase.setBaseCtl, 'BRT': HueBase.setBaseCtl,
+                   'DIM': HueBase.setBaseCtl, 'FDUP': HueBase.setBaseCtl, 'FDDOWN': HueBase.setBaseCtl,
+                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'SET_DUR': HueBase.setTransition,
+                   'SET_COLOR': setColor, 'SET_HUE': setHue, 'SET_SAT': setSat,
+                   'SET_KEL': setCt, 'SET_HSB': setColorHSB, 'SET_COLOR_RGB': setColorRGB,
+                   'SET_COLOR_XY': setColorXY, 'SET_ALERT': HueBase.setAlert, 'SET_EFFECT': setEffect,
+                   'SET_CTBR': setCtBri
+               }
+
+    id = 'HUE_GROUP'
+

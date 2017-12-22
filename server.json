@@ -12,7 +12,7 @@
         {
             "title": "udi-hue-poly: A Polyglot v2 interface to Philips Hue",
             "author": "Andrey Pevnev (xKing)",
-            "version": "0.0.1",
+            "version": "0.1.0",
             "date": "Dec 15, 2017",
             "source": "https://github.com/exking/udi-hue-poly",
             "license": "https://raw.githubusercontent.com/exking/udi-hue-poly/master/LICENSE"
@@ -28,7 +28,7 @@
         {
             "title": "phue: A Python library for Philips Hue",
             "author": "Nathanaël Lécaudé (studioimaginaire)",
-            "version": "1.1",
+            "version": "1.1.0",
             "date": "Jul 2, 2017",
             "source": "https://github.com/studioimaginaire/phue/tree/c48845992b476f4b1de9549ea5b5277399f56581",
             "license": "https://raw.githubusercontent.com/studioimaginaire/phue/c48845992b476f4b1de9549ea5b5277399f56581/LICENSE"
