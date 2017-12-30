@@ -92,13 +92,13 @@ class Control(polyglot.Controller):
                 if data['type'] == "Extended color light":
                     LOGGER.info('Found Extended Color Bulb: {}({})'.format(name, address))
                     self.addNode(HueEColorLight(self, self.address, address, name, lamp_id, data))
-                elif data['type'] == "Color Light":
+                elif data['type'] == "Color light":
                     LOGGER.info('Found Color Bulb: {}({})'.format(name, address))
                     self.addNode(HueColorLight(self, self.address, address, name, lamp_id, data))
                 elif data['type'] == "Color temperature light":
                     LOGGER.info('Found White Ambiance Bulb: {}({})'.format(name, address))
                     self.addNode(HueWhiteLight(self, self.address, address, name, lamp_id, data))
-                elif data['type'] == "Dimmable Light":
+                elif data['type'] == "Dimmable light":
                     LOGGER.info('Found Dimmable Bulb: {}({})'.format(name, address))
                     self.addNode(HueDimmLight(self, self.address, address, name, lamp_id, data))
                 else:
@@ -178,14 +178,7 @@ class Control(polyglot.Controller):
             return False
         return groups
 
-    def long_poll(self):
-        """ Save configuration every 30 seconds. """
-        self.update_config(self.hub_queried)
-
     drivers = [{ 'driver': 'ST', 'value': 0, 'uom': 2 }]
-    """ Driver Details:
-    GV1: Connected
-    """
     commands = {'DISCOVER': discover}
     id = 'HUEBR'
 
