@@ -66,7 +66,7 @@
                 <cmd id="SET_BRI">
                     <p id="" editor="HCLBRI" init="GV5" />
                 </cmd>
-                <cmd id="SET_KEL">
+                <cmd id="CLITEMP">
                     <p id="" editor="HKELVIN" init="CLITEMP" />
                 </cmd>
                 <cmd id="SET_CTBR">
@@ -74,7 +74,7 @@
                     <p id="D" editor="HDURATION" init="RR" />
                     <p id="BR" editor="HCLBRI" init="GV5" />
                 </cmd>
-                <cmd id="SET_DUR">
+                <cmd id="RR">
                     <p id="" editor="HDURATION" init="RR" />
                 </cmd>
                 <cmd id="SET_HSB">
@@ -144,7 +144,7 @@
                 <cmd id="SET_BRI">
                     <p id="" editor="HCLBRI" init="GV5" />
                 </cmd>
-                <cmd id="SET_DUR">
+                <cmd id="RR">
                     <p id="" editor="HDURATION" init="RR" />
                 </cmd>
                 <cmd id="SET_HSB">
@@ -189,7 +189,7 @@
                 <cmd id="SET_BRI">
                     <p id="" editor="HCLBRI" init="GV5" />
                 </cmd>
-                <cmd id="SET_KEL">
+                <cmd id="CLITEMP">
                     <p id="" editor="HKELVIN" init="CLITEMP" />
                 </cmd>
                 <cmd id="SET_CTBR">
@@ -197,7 +197,7 @@
                     <p id="D" editor="HDURATION" init="RR" />
                     <p id="BR" editor="HCLBRI" init="GV5" />
                 </cmd>
-                <cmd id="SET_DUR">
+                <cmd id="RR">
                     <p id="" editor="HDURATION" init="RR" />
                 </cmd>
                 <cmd id="SET_ALERT">
@@ -232,7 +232,7 @@
                 <cmd id="SET_BRI">
                     <p id="" editor="HCLBRI" init="GV5" />
                 </cmd>
-                <cmd id="SET_DUR">
+                <cmd id="RR">
                     <p id="" editor="HDURATION" init="RR" />
                 </cmd>
                 <cmd id="SET_ALERT">
@@ -294,7 +294,7 @@
                 <cmd id="SET_BRI">
                     <p id="" editor="HCLBRI" init="GV5" />
                 </cmd>
-                <cmd id="SET_KEL">
+                <cmd id="CLITEMP">
                     <p id="" editor="HKELVIN" init="CLITEMP" />
                 </cmd>
                 <cmd id="SET_CTBR">
@@ -302,7 +302,7 @@
                     <p id="D" editor="HDURATION" init="RR" />
                     <p id="BR" editor="HCLBRI" init="GV5" />
                 </cmd>
-                <cmd id="SET_DUR">
+                <cmd id="RR">
                     <p id="" editor="HDURATION" init="RR" />
                 </cmd>
                 <cmd id="SET_HSB">

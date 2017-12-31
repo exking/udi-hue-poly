@@ -41,12 +41,12 @@ class HueBase(polyglot.Node):
         cmd = command.get('cmd')
 
         """ transition time for FastOn/Off"""
-        if cmd == 'DFON' or cmd == 'DFOF':
+        if cmd in [ 'DFON', 'DFOF' ]:
             trans = 0
         else:
             trans = self.transitiontime
 
-        if cmd == 'DON' or cmd == 'DFON':
+        if cmd in ['DON', 'DFON']:
             """ setting self.on to False to ensure that _send_command will add it """
             self.on = False
             hue_command = {}
@@ -57,7 +57,7 @@ class HueBase(polyglot.Node):
                 self.setDriver('GV5', self.brightness)
             self.st = bri2st(self.brightness)
             result = self._send_command(hue_command, trans, True)
-        elif cmd == 'DOF' or cmd == 'DFOF':
+        elif cmd in ['DOF', 'DFOF']:
             self.on = False
             self.st = 0
             hue_command = { 'on': self.on }
@@ -68,7 +68,7 @@ class HueBase(polyglot.Node):
                 resets brightness to a random level, we'll attempt to re-set it here
                 """
                 self.saved_brightness = self.brightness
-        elif cmd == 'BRT' or cmd == 'DIM' or cmd == 'FDUP' or cmd == 'FDDOWN' or cmd == 'FDSTOP':
+        elif cmd in ['BRT', 'DIM', 'FDUP', 'FDDOWN', 'FDSTOP']:
             if cmd == 'BRT':
                 increment = DEF_INCREMENT
                 if self.brightness + increment > 254:
@@ -131,7 +131,7 @@ class HueBase(polyglot.Node):
 
     def setCtBri(self, command):
         query = command.get('query')
-        self.brightness = self._validateBri(int(query.get('BR.uom56')))
+        self.brightness = self._validateBri(int(query.get('BR.uom100')))
         self.ct = int(query.get('K.uom26'))
         self.setDriver('CLITEMP', self.ct)
         self.setDriver('ST', self.st)
@@ -141,11 +141,11 @@ class HueBase(polyglot.Node):
 
     def setColorRGB(self, command):
         query = command.get('query')
-        color_r = int(query.get('R.uom56'))
-        color_g = int(query.get('G.uom56'))
-        color_b = int(query.get('B.uom56'))
+        color_r = int(query.get('R.uom100'))
+        color_g = int(query.get('G.uom100'))
+        color_b = int(query.get('B.uom100'))
         transtime = int(query.get('D.uom42'))
-        self.brightness = self._validateBri(int(query.get('BR.uom56')))
+        self.brightness = self._validateBri(int(query.get('BR.uom100')))
         (self.color_x, self.color_y) = RGB_2_xy(color_r, color_g, color_b)
         hue_command = {'xy': [self.color_x, self.color_y], 'bri': self.brightness}
         self.setDriver('GV1', self.color_x)
@@ -159,7 +159,7 @@ class HueBase(polyglot.Node):
         self.color_x = float(query.get('X.uom56'))
         self.color_y = float(query.get('Y.uom56'))
         transtime = int(query.get('D.uom42'))
-        self.brightness = self._validateBri(int(query.get('BR.uom56')))
+        self.brightness = self._validateBri(int(query.get('BR.uom100')))
         hue_command = {'xy': [self.color_x, self.color_y], 'bri': self.brightness}
         self.setDriver('GV1', self.color_x)
         self.setDriver('GV2', self.color_y)            
@@ -190,8 +190,8 @@ class HueBase(polyglot.Node):
     def setColorHSB(self, command):
         query = command.get('query')
         self.hue = int(query.get('H.uom56'))
-        self.saturation = int(query.get('S.uom56'))
-        self.brightness = self._validateBri(int(query.get('BR.uom56')))
+        self.saturation = int(query.get('S.uom100'))
+        self.brightness = self._validateBri(int(query.get('BR.uom100')))
         transtime = int(query.get('D.uom42'))
         hue_command = {'hue': self.hue, 'sat': self.saturation, 'bri': self.brightness}
         self.setDriver('GV3', self.hue)
@@ -271,7 +271,7 @@ class HueDimmLight(HueBase):
             [list(resp.keys())[0] == 'success' for resp in responses[0]])
 
     drivers = [ {'driver': 'ST', 'value': 0, 'uom': 51},
-                {'driver': 'GV5', 'value': 0, 'uom': 56},
+                {'driver': 'GV5', 'value': 0, 'uom': 100},
                 {'driver': 'RR', 'value': 0, 'uom': 42},
                 {'driver': 'GV6', 'value': 0, 'uom': 2}
               ]
@@ -280,7 +280,7 @@ class HueDimmLight(HueBase):
                    'DON': HueBase.setBaseCtl, 'DOF': HueBase.setBaseCtl, 'QUERY': query,
                    'DFON': HueBase.setBaseCtl, 'DFOF': HueBase.setBaseCtl, 'BRT': HueBase.setBaseCtl,
                    'DIM': HueBase.setBaseCtl, 'FDUP': HueBase.setBaseCtl, 'FDDOWN': HueBase.setBaseCtl,
-                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'SET_DUR': HueBase.setTransition,
+                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'RR': HueBase.setTransition,
                    'SET_ALERT': HueBase.setAlert
                }
 
@@ -296,7 +296,7 @@ class HueWhiteLight(HueDimmLight):
         return True
 
     drivers = [ {'driver': 'ST', 'value': 0, 'uom': 51},
-                {'driver': 'GV5', 'value': 0, 'uom': 56},
+                {'driver': 'GV5', 'value': 0, 'uom': 100},
                 {'driver': 'CLITEMP', 'value': 0, 'uom': 26},
                 {'driver': 'RR', 'value': 0, 'uom': 42},
                 {'driver': 'GV6', 'value': 0, 'uom': 2}
@@ -306,8 +306,8 @@ class HueWhiteLight(HueDimmLight):
                    'DON': HueBase.setBaseCtl, 'DOF': HueBase.setBaseCtl, 'QUERY': HueDimmLight.query,
                    'DFON': HueBase.setBaseCtl, 'DFOF': HueBase.setBaseCtl, 'BRT': HueBase.setBaseCtl,
                    'DIM': HueBase.setBaseCtl, 'FDUP': HueBase.setBaseCtl, 'FDDOWN': HueBase.setBaseCtl,
-                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'SET_DUR': HueBase.setTransition,
-                   'SET_KEL': HueBase.setCt, 'SET_ALERT': HueBase.setAlert, 'SET_CTBR': HueBase.setCtBri
+                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'RR': HueBase.setTransition,
+                   'CLITEMP': HueBase.setCt, 'SET_ALERT': HueBase.setAlert, 'SET_CTBR': HueBase.setCtBri
                }
 
     id = 'WHITE_LIGHT'
@@ -332,8 +332,8 @@ class HueColorLight(HueDimmLight):
                 {'driver': 'GV1', 'value': 0, 'uom': 56},
                 {'driver': 'GV2', 'value': 0, 'uom': 56},
                 {'driver': 'GV3', 'value': 0, 'uom': 56},
-                {'driver': 'GV4', 'value': 0, 'uom': 56},
-                {'driver': 'GV5', 'value': 0, 'uom': 56},
+                {'driver': 'GV4', 'value': 0, 'uom': 100},
+                {'driver': 'GV5', 'value': 0, 'uom': 100},
                 {'driver': 'RR', 'value': 0, 'uom': 42},
                 {'driver': 'GV6', 'value': 0, 'uom': 2}
               ]
@@ -342,7 +342,7 @@ class HueColorLight(HueDimmLight):
                    'DON': HueBase.setBaseCtl, 'DOF': HueBase.setBaseCtl, 'QUERY': HueDimmLight.query,
                    'DFON': HueBase.setBaseCtl, 'DFOF': HueBase.setBaseCtl, 'BRT': HueBase.setBaseCtl,
                    'DIM': HueBase.setBaseCtl, 'FDUP': HueBase.setBaseCtl, 'FDDOWN': HueBase.setBaseCtl,
-                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'SET_DUR': HueBase.setTransition,
+                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'RR': HueBase.setTransition,
                    'SET_COLOR': HueBase.setColor, 'SET_HUE': HueBase.setHue, 'SET_SAT': HueBase.setSat, 'SET_HSB': HueBase.setColorHSB,
                    'SET_COLOR_RGB': HueBase.setColorRGB, 'SET_COLOR_XY': HueBase.setColorXY, 'SET_ALERT': HueBase.setAlert,
                    'SET_EFFECT': HueBase.setEffect
@@ -363,8 +363,8 @@ class HueEColorLight(HueColorLight):
                 {'driver': 'GV1', 'value': 0, 'uom': 56},
                 {'driver': 'GV2', 'value': 0, 'uom': 56},
                 {'driver': 'GV3', 'value': 0, 'uom': 56},
-                {'driver': 'GV4', 'value': 0, 'uom': 56},
-                {'driver': 'GV5', 'value': 0, 'uom': 56},
+                {'driver': 'GV4', 'value': 0, 'uom': 100},
+                {'driver': 'GV5', 'value': 0, 'uom': 100},
                 {'driver': 'CLITEMP', 'value': 0, 'uom': 26},
                 {'driver': 'RR', 'value': 0, 'uom': 42},
                 {'driver': 'GV6', 'value': 0, 'uom': 2}
@@ -374,9 +374,9 @@ class HueEColorLight(HueColorLight):
                    'DON': HueBase.setBaseCtl, 'DOF': HueBase.setBaseCtl, 'QUERY': HueDimmLight.query,
                    'DFON': HueBase.setBaseCtl, 'DFOF': HueBase.setBaseCtl, 'BRT': HueBase.setBaseCtl,
                    'DIM': HueBase.setBaseCtl, 'FDUP': HueBase.setBaseCtl, 'FDDOWN': HueBase.setBaseCtl,
-                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'SET_DUR': HueBase.setTransition,
+                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'RR': HueBase.setTransition,
                    'SET_COLOR': HueBase.setColor, 'SET_HUE': HueBase.setHue, 'SET_SAT': HueBase.setSat,
-                   'SET_KEL': HueBase.setCt, 'SET_HSB': HueBase.setColorHSB, 'SET_COLOR_RGB': HueBase.setColorRGB,
+                   'CLITEMP': HueBase.setCt, 'SET_HSB': HueBase.setColorHSB, 'SET_COLOR_RGB': HueBase.setColorRGB,
                    'SET_COLOR_XY': HueBase.setColorXY, 'SET_ALERT': HueBase.setAlert, 'SET_EFFECT': HueBase.setEffect,
                    'SET_CTBR': HueBase.setCtBri
                }
@@ -533,8 +533,8 @@ class HueGroup(HueBase):
                 {'driver': 'GV1', 'value': 0, 'uom': 56},
                 {'driver': 'GV2', 'value': 0, 'uom': 56},
                 {'driver': 'GV3', 'value': 0, 'uom': 56},
-                {'driver': 'GV4', 'value': 0, 'uom': 56},
-                {'driver': 'GV5', 'value': 0, 'uom': 56},
+                {'driver': 'GV4', 'value': 0, 'uom': 100},
+                {'driver': 'GV5', 'value': 0, 'uom': 100},
                 {'driver': 'GV6', 'value': 0, 'uom': 56},
                 {'driver': 'CLITEMP', 'value': 0, 'uom': 26},
                 {'driver': 'RR', 'value': 0, 'uom': 42}
@@ -544,9 +544,9 @@ class HueGroup(HueBase):
                    'DON': HueBase.setBaseCtl, 'DOF': HueBase.setBaseCtl, 'QUERY': query,
                    'DFON': HueBase.setBaseCtl, 'DFOF': HueBase.setBaseCtl, 'BRT': HueBase.setBaseCtl,
                    'DIM': HueBase.setBaseCtl, 'FDUP': HueBase.setBaseCtl, 'FDDOWN': HueBase.setBaseCtl,
-                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'SET_DUR': HueBase.setTransition,
+                   'FDSTOP': HueBase.setBaseCtl, 'SET_BRI': HueBase.setBrightness, 'RR': HueBase.setTransition,
                    'SET_COLOR': setColor, 'SET_HUE': setHue, 'SET_SAT': setSat,
-                   'SET_KEL': setCt, 'SET_HSB': setColorHSB, 'SET_COLOR_RGB': setColorRGB,
+                   'CLITEMP': setCt, 'SET_HSB': setColorHSB, 'SET_COLOR_RGB': setColorRGB,
                    'SET_COLOR_XY': setColorXY, 'SET_ALERT': HueBase.setAlert, 'SET_EFFECT': setEffect,
                    'SET_CTBR': setCtBri
                }
