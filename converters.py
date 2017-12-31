@@ -81,4 +81,7 @@ def bri2st(bri):
     return round(bri / 254. * 100., 4)
 
 def kel2mired(value):
-    return int(round(1e6 / value))
+    if value != 0:
+        return int(round(1e6 / value))
+    else:
+        return 0
