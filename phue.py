@@ -899,9 +899,11 @@ class Bridge(object):
                     converted_light = light
                 result.append(self.request('PUT', '/api/' + self.username + '/lights/' + str(
                     converted_light) + '/state', data))
-            if 'error' in list(result[-1][0].keys()):
-                LOGGER.warning("ERROR: {0} for light {1}".format(
-                    result[-1][0]['error']['description'], light))
+
+            if len(result) > 0 and len(result[-1]) > 0:
+                if 'error' in list(result[-1][0].keys()):
+                    LOGGER.warning("ERROR: {0} for light {1}".format(
+                        result[-1][0]['error']['description'], light))
 
         LOGGER.debug(result)
         return result
@@ -1113,9 +1115,10 @@ class Bridge(object):
             else:
                 result.append(self.request('PUT', '/api/' + self.username + '/groups/' + str(converted_group) + '/action', data))
 
-        if 'error' in list(result[-1][0].keys()):
-            LOGGER.warning("ERROR: {0} for group {1}".format(
-                result[-1][0]['error']['description'], group))
+        if len(result) > 0 and len(result[-1]) > 0:
+            if 'error' in list(result[-1][0].keys()):
+                LOGGER.warning("ERROR: {0} for group {1}".format(
+                    result[-1][0]['error']['description'], group))
 
         LOGGER.debug(result)
         return result
