@@ -49,6 +49,9 @@ class HueBase(polyglot.Node):
         if cmd in ['DON', 'DFON']:
             """ setting self.on to False to ensure that _send_command will add it """
             self.on = False
+            """ if this is a Hue Group class """
+            if hasattr(self,'all_on'):
+                self.all_on = False
             hue_command = {}
             val = command.get('value')
             if val:
