@@ -466,54 +466,63 @@ class HueGroup(HueBase):
         if 'ct' not in self.data['action']:
             LOGGER.info("{} {} does not have Color temperature lights but CT command is received".format(self.data['type'], self.data['name']))
             return False
+        self.all_on = False
         super().setCt(command)
 
     def setCtBri(self, command):
         if 'ct' not in self.data['action']:
             LOGGER.info("{} {} does not have Color temperature lights but CTBR command is received".format(self.data['type'], self.data['name']))
             return False
+        self.all_on = False
         super().setCtBri(command)
 
     def setColorRGB(self, command):
         if 'xy' not in self.data['action']:
             LOGGER.info("{} {} does not have Color lights but RGB command is received".format(self.data['type'], self.data['name']))
             return False
+        self.all_on = False
         super().setColorRGB(command)
 
     def setColorXY(self, command):
         if 'xy' not in self.data['action']:
             LOGGER.info("{} {} does not have Color lights but XY command is received".format(self.data['type'], self.data['name']))
             return False
+        self.all_on = False
         super().setColorXY(command)
 
     def setColor(self, command):
         if 'xy' not in self.data['action']:
             LOGGER.info("{} {} does not have Color lights but Color command is received".format(self.data['type'], self.data['name']))
             return False
+        self.all_on = False
         super().setColor(command)
 
     def setHue(self, command):
         if 'hue' not in self.data['action']:
             LOGGER.info("{} {} does not have Color lights but HUE command is received".format(self.data['type'], self.data['name']))
             return False
+        self.all_on = False
         super().setHue(command)
 
     def setSat(self, command):
         if 'sat' not in self.data['action']:
             LOGGER.info("{} {} does not have Color lights but SAT command is received".format(self.data['type'], self.data['name']))
             return False
+        self.all_on = False
         super().setSat(command)
 
     def setColorHSB(self, command):
         if 'hue' not in self.data['action']:
             LOGGER.info("{} {} does not have Color lights but HSB command is received".format(self.data['type'], self.data['name']))
             return False
+        self.all_on = False
         super().setColorHSB(command)
 
     def setEffect(self, command):
         if 'effect' not in self.data['action']:
             LOGGER.info("{} {} does not have Color lights but EFFECT command is received".format(self.data['type'], self.data['name']))
             return False
+        self.all_on = False
         super().setEffect(command)
 
     def _send_command(self, command, transtime, checkOn):
