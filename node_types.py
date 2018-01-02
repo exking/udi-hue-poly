@@ -58,6 +58,11 @@ class HueBase(polyglot.Node):
                 self.brightness = self._validateBri(int(val))
                 hue_command['bri'] = self.brightness
                 self.setDriver('GV5', self.brightness)
+            elif cmd == 'DFON':
+                ''' Go to full brightness on Fast On '''
+                self.brightness = 254
+                hue_command['bri'] = self.brightness
+                self.setDriver('GV5', self.brightness)
             self.st = bri2st(self.brightness)
             result = self._send_command(hue_command, trans, True)
         elif cmd in ['DOF', 'DFOF']:
