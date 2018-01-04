@@ -235,10 +235,14 @@ class HueDimmLight(HueBase):
         
     def query(self, command = None):
         self.data = self.parent.hub.get_light(self.element_id)
+        if self.data is None:
+            return False
         self._updateInfo()
         self.reportDrivers()
         
     def updateInfo(self):
+        if self.parent.lights is None:
+            return False
         self.data = self.parent.lights[str(self.element_id)]
         self._updateInfo()
 
@@ -406,10 +410,14 @@ class HueGroup(HueBase):
         
     def query(self, command = None):
         self.data = self.parent.hub.get_group(self.element_id)
+        if self.data is None:
+            return False
         self._updateInfo()
         self.reportDrivers()
         
     def updateInfo(self):
+        if self.parent.groups is None:
+            return False
         self.data = self.parent.groups[str(self.element_id)]
         self._updateInfo()
 

@@ -151,14 +151,14 @@ class Control(polyglot.Controller):
             lights = self.hub.get_light()
         except BadStatusLine:
             LOGGER.error('Hue Bridge returned bad status line.')
-            return False
+            return None
         except phue.PhueRequestTimeout:
             LOGGER.error('Timed out trying to connect to Hue Bridge.')
-            return False
+            return None
         except socket.error:
             LOGGER.error("Can't contact Hue Bridge. " +
                          "Network communication issue.")
-            return False
+            return None
         return lights
 
     def _get_groups(self):
@@ -168,14 +168,14 @@ class Control(polyglot.Controller):
             groups = self.hub.get_group()
         except BadStatusLine:
             LOGGER.error('Hue Bridge returned bad status line.')
-            return False
+            return None
         except phue.PhueRequestTimeout:
             LOGGER.error('Timed out trying to connect to Hue Bridge.')
-            return False
+            return None
         except socket.error:
             LOGGER.error("Can't contact Hue Bridge. " +
                          "Network communication issue.")
-            return False
+            return None
         return groups
 
     drivers = [{ 'driver': 'ST', 'value': 0, 'uom': 2 }]
