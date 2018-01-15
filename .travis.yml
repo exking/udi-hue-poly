@@ -1,8 +1,9 @@
 language:
-    - python
-
+- python
 python:
-    - '3.6'
-
+- '3.6'
 script:
-    - ./hue.py
+- "./hue.py"
+notifications:
+  slack:
+    secure: yPdS8H5Nso3tjGfOlKvsY3lQua3ko+g68jc1P3qtyWUlfCvpYfw03MkhU6YTHjBEtFJaYDQft5/uDz3FwtgBZnxjt32egE65NoXdqPjgtMZs+CH7dLAe8+gaVwSLUwZNe9cZM71Wt5RTX+2m6AQ1fkx7WjKyng23OI2HtJJk/x2vB1ZEOjFGfcT+EYHiKFPO06j5bKh7XRqiQjb5bcRndOHmr8+sK7+C5JcnKGZ6jtWQ2174S98bo+Ea9+joEGa1SRmNzpGHHDdBDFOZVqOP2dN+oyV1J2K1QZNdA/19EJ6U6J081icLYQ33DoUtvEffOaMPAaGKUaU3OvglEZSLKRXMAWx2x1p3yW6NEY0LqJj2FoREg2echVre5KoCWOogWpzot/ouqzd+eqFseank4azG3rFFos7s+ghiUu9E4PNMo3Y0ltPznVf4at/T4I9NBHDX8gUrAeIcke9Tvb9dGgFsP592SmYWq5Ew3gsa4S567Y/N2aue4BboctjMiyK6bpAMSOIuHmdpPS0T89poZ3YvAGkemSLsLJhV0SMsCMr1MLF0SYQ7e/AFG4YyOXx/Y6ZLdaBTF228fTfGUxe9pTWZj1Yo/MueK9VaJK8/0Oof+fiIXQLickBvWUXiJ9zEK+j/hd1GGiGlK/GsI3ValdGM/oKS/MnnEd4WWQyM15Q=
