@@ -1,5 +1,6 @@
 # UDI Polyglot v2 Philips Hue Poly 
 
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/exking/udi-hue-poly/blob/master/LICENSE)
 [![Build Status](https://travis-ci.org/exking/udi-hue-poly.svg?branch=master)](https://travis-ci.org/exking/udi-hue-poly)
 
 This Poly provides an interface between Hue Bridge and [Polyglot v2](https://github.com/Einstein42/udi-polyglotv2) server.
