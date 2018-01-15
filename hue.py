@@ -40,15 +40,30 @@ class Control(polyglot.Controller):
         self.updateNodes()
 
     def connect(self):
+        custom_data_ip = False
+        custom_data_user = False
         """ Connect to Phillips Hue Hub """
         # pylint: disable=broad-except
         # get hub settings
-        if 'ip' in self.polyConfig['customParams']:
+        if 'customData' in self.polyConfig:
+            if 'bridge_ip' in self.polyConfig['customData']:
+                self.bridge_ip = self.polyConfig['customData']['bridge_ip']
+                custom_data_ip = True
+                LOGGER.info('Bridge IP found in the Database: {}'.format(self.bridge_ip))
+            if 'bridge_user' in self.polyConfig['customData']:
+                self.bridge_user = self.polyConfig['customData']['bridge_user']
+                custom_data_user = True
+                LOGGER.info('Bridge Username found in the Database.')
+        else:
+            LOGGER.info('Custom Data is not found in the DB')
+
+        if 'ip' in self.polyConfig['customParams'] and self.bridge_ip is None:
             self.bridge_ip = self.polyConfig['customParams']['ip']
             LOGGER.info('Custom Bridge IP address specified: {}'.format(self.bridge_ip))
-        if 'username' in self.polyConfig['customParams']:
+        if 'username' in self.polyConfig['customParams'] and self.bridge_user is None:
             self.bridge_user = self.polyConfig['customParams']['username']
             LOGGER.info('Custom Bridge Username specified: {}'.format(self.bridge_user))
+
         try:
             self.hub = phue.Bridge( self.bridge_ip, self.bridge_user )
         except phue.PhueRegistrationException:
@@ -63,6 +78,10 @@ class Control(polyglot.Controller):
 
             if self.lights:
                 LOGGER.info('Connection OK')
+                if custom_data_ip == False or custom_data_user == False:
+                    LOGGER.debug('Saving access credentials to the Database')
+                    data = { 'bridge_ip': self.hub.ip, 'bridge_user': self.hub.username }
+                    self.saveCustomData(data)
                 return True
             else:
                 LOGGER.error('Connect: Failed to read Lights from the Hue Bridge')

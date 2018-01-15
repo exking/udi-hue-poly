@@ -231,6 +231,7 @@ class HueDimmLight(HueBase):
         self.reachable = None
 
     def start(self):
+        self.transitiontime = self.getDriver('RR')
         self.updateInfo()
         
     def query(self, command = None):
@@ -286,7 +287,7 @@ class HueDimmLight(HueBase):
 
     drivers = [ {'driver': 'ST', 'value': 0, 'uom': 51},
                 {'driver': 'GV5', 'value': 0, 'uom': 100},
-                {'driver': 'RR', 'value': 0, 'uom': 42},
+                {'driver': 'RR', 'value': 400, 'uom': 42},
                 {'driver': 'GV6', 'value': 0, 'uom': 2}
               ]
 
@@ -312,7 +313,7 @@ class HueWhiteLight(HueDimmLight):
     drivers = [ {'driver': 'ST', 'value': 0, 'uom': 51},
                 {'driver': 'GV5', 'value': 0, 'uom': 100},
                 {'driver': 'CLITEMP', 'value': 0, 'uom': 26},
-                {'driver': 'RR', 'value': 0, 'uom': 42},
+                {'driver': 'RR', 'value': 400, 'uom': 42},
                 {'driver': 'GV6', 'value': 0, 'uom': 2}
               ]
 
@@ -348,7 +349,7 @@ class HueColorLight(HueDimmLight):
                 {'driver': 'GV3', 'value': 0, 'uom': 56},
                 {'driver': 'GV4', 'value': 0, 'uom': 100},
                 {'driver': 'GV5', 'value': 0, 'uom': 100},
-                {'driver': 'RR', 'value': 0, 'uom': 42},
+                {'driver': 'RR', 'value': 400, 'uom': 42},
                 {'driver': 'GV6', 'value': 0, 'uom': 2}
               ]
 
@@ -380,7 +381,7 @@ class HueEColorLight(HueColorLight):
                 {'driver': 'GV4', 'value': 0, 'uom': 100},
                 {'driver': 'GV5', 'value': 0, 'uom': 100},
                 {'driver': 'CLITEMP', 'value': 0, 'uom': 26},
-                {'driver': 'RR', 'value': 0, 'uom': 42},
+                {'driver': 'RR', 'value': 400, 'uom': 42},
                 {'driver': 'GV6', 'value': 0, 'uom': 2}
               ]
 
@@ -406,6 +407,7 @@ class HueGroup(HueBase):
         self.all_on = None
 
     def start(self):
+        self.transitiontime = self.getDriver('RR')
         self.updateInfo()
         
     def query(self, command = None):
@@ -555,7 +557,7 @@ class HueGroup(HueBase):
                 {'driver': 'GV5', 'value': 0, 'uom': 100},
                 {'driver': 'GV6', 'value': 0, 'uom': 56},
                 {'driver': 'CLITEMP', 'value': 0, 'uom': 26},
-                {'driver': 'RR', 'value': 0, 'uom': 42}
+                {'driver': 'RR', 'value': 400, 'uom': 42}
               ]
 
     commands = {
