@@ -43,7 +43,7 @@ def RGB_2_xy(R, G, B):
     Z = var_R * 0.0193 + var_G * 0.1192 + var_B * 0.9505
 
     # Convert XYZ to xy, see CIE 1931 color space on wikipedia
-    return X / (X + Y + Z), Y / (X + Y + Z)
+    return round(X / (X + Y + Z), 4), round(Y / (X + Y + Z), 4)
 
 """ Common color names and their RGB values. """
 colors = {
