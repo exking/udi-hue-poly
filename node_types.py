@@ -231,7 +231,7 @@ class HueDimmLight(HueBase):
         self.reachable = None
 
     def start(self):
-        self.transitiontime = self.getDriver('RR')
+        self.transitiontime = int(self.getDriver('RR'))
         self.updateInfo()
         
     def query(self, command = None):
@@ -407,7 +407,7 @@ class HueGroup(HueBase):
         self.all_on = None
 
     def start(self):
-        self.transitiontime = self.getDriver('RR')
+        self.transitiontime = int(self.getDriver('RR'))
         self.updateInfo()
         
     def query(self, command = None):
