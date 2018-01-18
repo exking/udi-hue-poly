@@ -103,6 +103,7 @@ class HueBase(polyglot.Node):
             result = self._send_command(hue_command, trans, True)
         else:
             LOGGER.error('setBaseCtl received an unknown command: {}'.format(cmd))
+            result = None
 
         self.setDriver('ST', self.st)
         return result
@@ -129,7 +130,7 @@ class HueBase(polyglot.Node):
         if brightness > 254:
             brightness = 254
         elif brightness < 1:
-            brighness = 1
+            brightness = 1
         self.st = bri2st(brightness)
         return brightness
 
@@ -234,7 +235,7 @@ class HueDimmLight(HueBase):
         self.transitiontime = int(self.getDriver('RR'))
         self.updateInfo()
         
-    def query(self, command = None):
+    def query(self, command=None):
         self.data = self.parent.hub.get_light(self.element_id)
         if self.data is None:
             return False
@@ -410,7 +411,7 @@ class HueGroup(HueBase):
         self.transitiontime = int(self.getDriver('RR'))
         self.updateInfo()
         
-    def query(self, command = None):
+    def query(self, command=None):
         self.data = self.parent.hub.get_group(self.element_id)
         if self.data is None:
             return False

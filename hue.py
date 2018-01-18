@@ -71,7 +71,7 @@ class Control(polyglot.Controller):
             return False
         except Exception:
             LOGGER.error('Cannot find Hue Bridge')
-            return False  # bad ip Addressse:
+            return False  # bad ip Address:
         else:
             # ensure hub is connectable
             self.lights = self._get_lights()
@@ -88,7 +88,7 @@ class Control(polyglot.Controller):
                 self.hub = None
                 return False
 
-    def discover(self, command = {}):
+    def discover(self, command=None):
         """ Poll Hue for new lights/existing lights' statuses """
         if self.hub is None or self.discovery == True:
             return True

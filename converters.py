@@ -45,40 +45,44 @@ def RGB_2_xy(R, G, B):
     # Convert XYZ to xy, see CIE 1931 color space on wikipedia
     return round(X / (X + Y + Z), 4), round(Y / (X + Y + Z), 4)
 
+
 """ Common color names and their RGB values. """
 colors = {
-    0 : ['aqua', [127, 255, 212]],
-    1 : ['azure', [0, 127, 255]],    
-    2 : ['beige', [245, 245, 220]],
-    3 : ['blue', [0, 0, 255]],
-    4 : ['chartreuse', [127, 255, 0]],
-    5 : ['coral', [0, 63, 72]],
-    6 : ['crimson', [220, 20, 60]],
-    7 : ['forest green', [34, 139, 34]],
-    8 : ['fuchsia', [255, 119, 255]],
-    9 : ['golden', [255, 215, 0]],
-    10 : ['gray', [128, 128, 128]],
-    11 : ['green', [0, 255, 0]],
-    12 : ['hot pink', [252, 15, 192]],
-    13 : ['indigo', [75, 0, 130]],
-    14 : ['lavender', [181, 126, 220]],
-    15 : ['lime', [191, 255, 0]],
-    16 : ['maroon', [128, 0, 0]],
-    17 : ['navy blue', [0, 0, 128]],
-    18 : ['olive', [128, 128, 0]],
-    19 : ['red', [255, 0, 0]],
-    20 : ['royal blue', [8, 76, 158]],
-    21 : ['tan', [210, 180, 140]],
-    22 : ['teal', [0, 128, 128]],
-    23 : ['white', [255, 255, 255]]
+    0: ['aqua', [127, 255, 212]],
+    1: ['azure', [0, 127, 255]],
+    2: ['beige', [245, 245, 220]],
+    3: ['blue', [0, 0, 255]],
+    4: ['chartreuse', [127, 255, 0]],
+    5: ['coral', [0, 63, 72]],
+    6: ['crimson', [220, 20, 60]],
+    7: ['forest green', [34, 139, 34]],
+    8: ['fuchsia', [255, 119, 255]],
+    9: ['golden', [255, 215, 0]],
+    10: ['gray', [128, 128, 128]],
+    11: ['green', [0, 255, 0]],
+    12: ['hot pink', [252, 15, 192]],
+    13: ['indigo', [75, 0, 130]],
+    14: ['lavender', [181, 126, 220]],
+    15: ['lime', [191, 255, 0]],
+    16: ['maroon', [128, 0, 0]],
+    17: ['navy blue', [0, 0, 128]],
+    18: ['olive', [128, 128, 0]],
+    19: ['red', [255, 0, 0]],
+    20: ['royal blue', [8, 76, 158]],
+    21: ['tan', [210, 180, 140]],
+    22: ['teal', [0, 128, 128]],
+    23: ['white', [255, 255, 255]]
  }
+
 
 def color_xy(c_id):
     """ Lookup a color and return the XY values for that color. """
     return RGB_2_xy(*colors[c_id][1])
 
+
 def bri2st(bri):
     return round(bri / 254. * 100., 4)
+
 
 def kel2mired(value):
     if value != 0:
