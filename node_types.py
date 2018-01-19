@@ -64,7 +64,7 @@ class HueBase(polyglot.Node):
                 hue_command['bri'] = self.brightness
                 self.setDriver('GV5', self.brightness)
             self.st = bri2st(self.brightness)
-            result = self._send_command(hue_command, trans, True)
+            result = self._send_command(hue_command, trans)
         elif cmd in ['DOF', 'DFOF']:
             self.on = False
             if hasattr(self,'all_on'):
@@ -100,7 +100,7 @@ class HueBase(polyglot.Node):
             self.st = bri2st(self.brightness)
             hue_command = { 'bri_inc': increment }
             self.setDriver('GV5', self.brightness)
-            result = self._send_command(hue_command, trans, True)
+            result = self._send_command(hue_command, trans)
         else:
             LOGGER.error('setBaseCtl received an unknown command: {}'.format(cmd))
             result = None
@@ -113,7 +113,7 @@ class HueBase(polyglot.Node):
         self.setDriver('GV5', self.brightness)
         self.setDriver('ST', self.st)
         hue_command = { 'bri': self.brightness }
-        return self._send_command(hue_command, self.transitiontime, True)
+        return self._send_command(hue_command)
 
     def setTransition(self, command):
         self.transitiontime = int(command.get('value'))
@@ -124,7 +124,7 @@ class HueBase(polyglot.Node):
         val = int(command.get('value')) - 1
         self.alert = HUE_ALERTS[val]
         hue_command = { 'alert': self.alert }
-        return self._send_command(hue_command, self.transitiontime, True)
+        return self._send_command(hue_command)
 
     def _validateBri(self, brightness):
         if brightness > 254:
@@ -138,7 +138,7 @@ class HueBase(polyglot.Node):
         self.ct = int(command.get('value'))
         self.setDriver('CLITEMP', self.ct)
         hue_command = { 'ct': kel2mired(self.ct) }
-        return self._send_command(hue_command, self.transitiontime, True)
+        return self._send_command(hue_command)
 
     def setCtBri(self, command):
         query = command.get('query')
@@ -148,7 +148,7 @@ class HueBase(polyglot.Node):
         self.setDriver('ST', self.st)
         self.setDriver('GV5', self.brightness)
         hue_command = { 'ct': kel2mired(self.ct), 'bri': self.brightness }
-        return self._send_command(hue_command, self.transitiontime, True)
+        return self._send_command(hue_command)
 
     def setColorRGB(self, command):
         query = command.get('query')
@@ -163,7 +163,7 @@ class HueBase(polyglot.Node):
         self.setDriver('GV2', self.color_y)
         self.setDriver('GV5', self.brightness)
         self.setDriver('ST', self.st)
-        return self._send_command(hue_command, transtime, True)
+        return self._send_command(hue_command, transtime)
 
     def setColorXY(self, command):
         query = command.get('query')
@@ -176,7 +176,7 @@ class HueBase(polyglot.Node):
         self.setDriver('GV2', self.color_y)            
         self.setDriver('GV5', self.brightness)
         self.setDriver('ST', self.st)
-        return self._send_command(hue_command, transtime, True)
+        return self._send_command(hue_command, transtime)
 
     def setColor(self, command):
         c_id = int(command.get('value')) - 1
@@ -184,19 +184,19 @@ class HueBase(polyglot.Node):
         hue_command = {'xy': [self.color_x, self.color_y]}
         self.setDriver('GV1', self.color_x)
         self.setDriver('GV2', self.color_y)
-        return self._send_command(hue_command, self.transitiontime, True)
+        return self._send_command(hue_command)
 
     def setHue(self, command):
         self.hue = int(command.get('value'))
         self.setDriver('GV3', self.hue)
         hue_command = { 'hue': self.hue }
-        return self._send_command(hue_command, self.transitiontime, True)
+        return self._send_command(hue_command)
 
     def setSat(self, command):
         self.saturation = int(command.get('value'))
         self.setDriver('GV4', self.saturation)
         hue_command = { 'sat': self.saturation }
-        return self._send_command(hue_command, self.transitiontime, True)
+        return self._send_command(hue_command)
 
     def setColorHSB(self, command):
         query = command.get('query')
@@ -209,15 +209,15 @@ class HueBase(polyglot.Node):
         self.setDriver('GV4', self.saturation)
         self.setDriver('GV5', self.brightness)
         self.setDriver('ST', self.st)
-        return self._send_command(hue_command, transtime, True)
+        return self._send_command(hue_command, transtime)
 
     def setEffect(self, command):
         val = int(command.get('value')) - 1
         self.effect = HUE_EFFECTS[val]
         hue_command = { 'effect': self.effect }
-        return self._send_command(hue_command, self.transitiontime, True)
+        return self._send_command(hue_command)
 
-    def _send_command(self, command, transtime, checkOn):
+    def _send_command(self, command, transtime=None, checkOn=True):
         pass
 
     drivers = []
@@ -270,11 +270,13 @@ class HueDimmLight(HueBase):
         self.setDriver('RR', self.transitiontime)
         return True
 
-    def _send_command(self, command, transtime, checkOn):
+    def _send_command(self, command, transtime=None, checkOn=True):
         """ generic method to send command to light """
+        if transtime is None:
+            transtime = self.transitiontime
         if transtime != DEF_TRANSTIME:
             command['transitiontime'] = int(round(transtime / 100))
-        if checkOn and self.on != True:
+        if checkOn and self.on is False:
             command['on'] = True
             self.on = True
             if self.saved_brightness:
@@ -534,11 +536,13 @@ class HueGroup(HueBase):
             return False
         super().setEffect(command)
 
-    def _send_command(self, command, transtime, checkOn):
+    def _send_command(self, command, transtime=None, checkOn=True):
+        if transtime is None:
+            transtime = self.transitiontime
         """ generic method to send command to light """
         if transtime != DEF_TRANSTIME:
             command['transitiontime'] = int(round(transtime / 100))
-        if checkOn and self.all_on != True:
+        if checkOn and self.all_on is False:
             command['on'] = True
             self.all_on = True
             if self.saved_brightness:
