@@ -3,7 +3,7 @@
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/exking/udi-hue-poly/blob/master/LICENSE)
 [![Build Status](https://travis-ci.org/exking/udi-hue-poly.svg?branch=master)](https://travis-ci.org/exking/udi-hue-poly)
 
-This Poly provides an interface between Hue Bridge and [Polyglot v2](https://github.com/Einstein42/udi-polyglotv2) server.
+This Poly provides an interface between Hue Bridge and [Polyglot v2](https://github.com/UniversalDevicesInc/polyglot-v2) server.
 All Philips branded bulbs are supported (Dimmable, White, Color and Extended Color),
 bulbs could be added to the Insteon scenes as responders and should respond to all basic commands, including dimming.
 
@@ -33,4 +33,4 @@ Thanks and good luck.
 ### History
 1. [Phue](https://github.com/studioimaginaire/phue) Library with minor modifications is used as a backend.
 2. [Original Implementation](https://github.com/UniversalDevicesInc/Polyglot) of the Hue Poly by UniversalDevices team was a base.
-3. [LiFX Poly](https://github.com/Einstein42/udi-lifx-poly) was used as a template in order to re-write this Poly for [Polyglot v2](https://github.com/Einstein42/udi-polyglotv2)
+3. [LiFX Poly](https://github.com/Einstein42/udi-lifx-poly) was used as a template in order to re-write this Poly for [Polyglot v2](https://github.com/UniversalDevicesInc/polyglot-v2)
