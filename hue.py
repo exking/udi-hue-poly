@@ -36,6 +36,9 @@ class Control(polyglot.Controller):
         self.connect()
         self.discover()
 
+    def stop(self):
+        LOGGER.info('Hue NodeServer is stopping')
+
     def shortPoll(self):
         self.updateNodes()
 
@@ -68,6 +71,7 @@ class Control(polyglot.Controller):
             self.hub = phue.Bridge( self.bridge_ip, self.bridge_user )
         except phue.PhueRegistrationException:
             LOGGER.error('IP Address OK. Node Server not registered.')
+            self.addNotice('Please press the button on the Hue Bridge and restart the node server within 30 seconds')
             return False
         except Exception:
             LOGGER.error('Cannot find Hue Bridge')
@@ -78,6 +82,7 @@ class Control(polyglot.Controller):
 
             if self.lights:
                 LOGGER.info('Connection OK')
+                self.removeNoticesAll()
                 if custom_data_ip == False or custom_data_user == False:
                     LOGGER.debug('Saving access credentials to the Database')
                     data = { 'bridge_ip': self.hub.ip, 'bridge_user': self.hub.username }

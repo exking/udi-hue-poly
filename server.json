@@ -11,8 +11,8 @@
     "credits": [
         {
             "title": "udi-hue-poly: A Polyglot v2 interface to Philips Hue",
-            "author": "Andrey Pevnev (xKing)",
-            "version": "0.1.3",
+            "author": "xKing",
+            "version": "0.1.4",
             "date": "Dec 15, 2017",
             "source": "https://github.com/exking/udi-hue-poly",
             "license": "https://raw.githubusercontent.com/exking/udi-hue-poly/master/LICENSE"
