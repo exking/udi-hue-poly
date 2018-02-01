@@ -18,8 +18,8 @@ HUE_ALERTS = ['none', 'select', 'lselect']
 class HueBase(polyglot.Node):
     """ Base class for lights and groups """
 
-    def __init__(self, parent, primary, address, name, element_id, element):
-        super().__init__(parent, primary, address, name)
+    def __init__(self, controller, primary, address, name, element_id, element):
+        super().__init__(controller, primary, address, name)
         self.name = name
         self.element_id = int(element_id)
         self.data = element
@@ -227,8 +227,8 @@ class HueBase(polyglot.Node):
 class HueDimmLight(HueBase):
     """ Node representing Hue Dimmable Light """
 
-    def __init__(self, parent, primary, address, name, element_id, device):
-        super().__init__(parent, primary, address, name, element_id, device)
+    def __init__(self, controller, primary, address, name, element_id, device):
+        super().__init__(controller, primary, address, name, element_id, device)
         self.reachable = None
 
     def start(self):
@@ -239,16 +239,16 @@ class HueDimmLight(HueBase):
         self.updateInfo()
         
     def query(self, command=None):
-        self.data = self.parent.hub.get_light(self.element_id)
+        self.data = self.controller.hub.get_light(self.element_id)
         if self.data is None:
             return False
         self._updateInfo()
         self.reportDrivers()
         
     def updateInfo(self):
-        if self.parent.lights is None:
+        if self.controller.lights is None:
             return False
-        self.data = self.parent.lights[str(self.element_id)]
+        self.data = self.controller.lights[str(self.element_id)]
         self._updateInfo()
 
     def _updateInfo(self):
@@ -287,7 +287,7 @@ class HueDimmLight(HueBase):
                 if 'bri' not in command:
                     command['bri'] = self.saved_brightness
                 self.saved_brightness = None
-        responses = self.parent.hub.set_light(self.element_id, command)
+        responses = self.controller.hub.set_light(self.element_id, command)
         return all(
             [list(resp.keys())[0] == 'success' for resp in responses[0]])
 
@@ -407,8 +407,8 @@ class HueEColorLight(HueColorLight):
 class HueGroup(HueBase):
     """ Node representing a group of Hue Lights """
 
-    def __init__(self, parent, primary, address, name, element_id, device):
-        super().__init__(parent, primary, address, name, element_id, device)
+    def __init__(self, controller, primary, address, name, element_id, device):
+        super().__init__(controller, primary, address, name, element_id, device)
         self.devcount = None
         self.all_on = None
 
@@ -420,16 +420,16 @@ class HueGroup(HueBase):
         self.updateInfo()
         
     def query(self, command=None):
-        self.data = self.parent.hub.get_group(self.element_id)
+        self.data = self.controller.hub.get_group(self.element_id)
         if self.data is None:
             return False
         self._updateInfo()
         self.reportDrivers()
         
     def updateInfo(self):
-        if self.parent.groups is None:
+        if self.controller.groups is None:
             return False
-        self.data = self.parent.groups[str(self.element_id)]
+        self.data = self.controller.groups[str(self.element_id)]
         self._updateInfo()
 
     def _updateInfo(self):
@@ -556,7 +556,7 @@ class HueGroup(HueBase):
                 if 'bri' not in command:
                     command['bri'] = self.saved_brightness
                 self.saved_brightness = None
-        responses = self.parent.hub.set_group(self.element_id, command)
+        responses = self.controller.hub.set_group(self.element_id, command)
         return all(
             [list(resp.keys())[0] == 'success' for resp in responses[0]])
 
