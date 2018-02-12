@@ -8,7 +8,7 @@ All Philips branded bulbs are supported (Dimmable, White, Color and Extended Col
 bulbs could be added to the Insteon scenes as responders and should respond to all basic commands, including dimming.
 
 ### Installation instructions
-
+Make sure that you have a `zip` executable on the system, install using your OS package manager if necessarily.
 You can install it from the Polyglot store or manually running
 ```
 cd ~/.polyglot/nodeservers
