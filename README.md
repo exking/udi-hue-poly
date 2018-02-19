@@ -9,7 +9,7 @@ bulbs could be added to the Insteon scenes as responders and should respond to a
 
 ### Installation instructions
 Make sure that you have a `zip` executable on the system, install using your OS package manager if necessarily.
-You can install it from the Polyglot store or manually running
+You can install NodeServer from the Polyglot store or manually running
 ```
 cd ~/.polyglot/nodeservers
 git clone https://github.com/exking/udi-hue-poly.git Hue

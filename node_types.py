@@ -47,23 +47,23 @@ class HueBase(polyglot.Node):
             trans = self.transitiontime
 
         if cmd in ['DON', 'DFON']:
-            """ setting self.on to False to ensure that _send_command will add it """
-            self.on = False
-            """ if this is a Hue Group class """
-            if hasattr(self,'all_on'):
-                self.all_on = False
             hue_command = {}
             val = command.get('value')
             if val:
                 self.brightness = self._validateBri(int(val))
                 hue_command['bri'] = self.brightness
                 self.setDriver('GV5', self.brightness)
-            elif cmd == 'DFON':
-                ''' Go to full brightness on Fast On '''
+            elif cmd == 'DFON' or self.on:
+                ''' Go to full brightness on Fast On or if already On '''
                 self.brightness = 254
                 hue_command['bri'] = self.brightness
                 self.setDriver('GV5', self.brightness)
             self.st = bri2st(self.brightness)
+            """ setting self.on to False to ensure that _send_command will add it """
+            self.on = False
+            """ if this is a Hue Group class """
+            if hasattr(self,'all_on'):
+                self.all_on = False
             result = self._send_command(hue_command, trans)
         elif cmd in ['DOF', 'DFOF']:
             self.on = False
