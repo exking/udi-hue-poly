@@ -26,7 +26,7 @@ Sometimes automatic bridge IP address discovery fails, in that case - you can sp
 
 Poly assumes that Bridge IP address never change, so it is recommended that you create an IP address reservation for the Hue Bridge on your router.
 
-Please report any problems on the UDI user forum.
+Please report any problems on the [UDI user forum](https://forum.universal-devices.com/topic/23149-polyglot-v2-hue-nodeserver/).
 
 Thanks and good luck.
 

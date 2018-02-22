@@ -12,7 +12,7 @@
         {
             "title": "udi-hue-poly: A Polyglot v2 interface to Philips Hue",
             "author": "xKing",
-            "version": "0.1.5",
+            "version": "0.1.6",
             "date": "Dec 15, 2017",
             "source": "https://github.com/exking/udi-hue-poly",
             "license": "https://raw.githubusercontent.com/exking/udi-hue-poly/master/LICENSE"

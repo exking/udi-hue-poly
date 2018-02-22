@@ -11,6 +11,7 @@ from node_types import HueDimmLight, HueWhiteLight, HueColorLight, HueEColorLigh
 import sys
 import socket
 import phue
+import logging
 
 LOGGER = polyglot.LOGGER
 
@@ -33,6 +34,8 @@ class Control(polyglot.Controller):
     def start(self):
         """ Initial node setup. """
         # define nodes for settings
+        if 'debug' not in self.polyConfig['customParams']:
+            LOGGER.setLevel(logging.INFO)
         self.connect()
         self.discover()
 

@@ -17,7 +17,7 @@
 
     <!-- Brightness -->
     <editor id="HCLST">
-        <range uom="51" min="0" max="100" prec="0" />
+        <range uom="51" min="0" max="100" prec="4" />
     </editor>
 
     <!-- Color Selector -->
