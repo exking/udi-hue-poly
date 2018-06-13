@@ -29,7 +29,10 @@
             <st id="GV6" editor="HCONNECT" /> <!-- Reachable -->
         </sts>
         <cmds>
-            <sends />
+            <sends>
+                <cmd id="DON" />
+                <cmd id="DOF" />
+            </sends>
             <accepts>
                 <cmd id="DON" />
                 <cmd id="DOF" />
@@ -107,7 +110,10 @@
             <st id="GV6" editor="HCONNECT" /> <!-- Reachable -->
         </sts>
         <cmds>
-            <sends />
+            <sends>
+                <cmd id="DON" />
+                <cmd id="DOF" />
+            </sends>
             <accepts>
 	        <cmd id="DON" />
                 <cmd id="DOF" />
@@ -174,7 +180,10 @@
             <st id="GV6" editor="HCONNECT" /> <!-- Reachable -->
         </sts>
         <cmds>
-            <sends />
+            <sends>
+                <cmd id="DON" />
+                <cmd id="DOF" />
+            </sends>
             <accepts>
                 <cmd id="DON" />
                 <cmd id="DOF" />
@@ -217,7 +226,10 @@
             <st id="GV6" editor="HCONNECT" /> <!-- Reachable -->
         </sts>
         <cmds>
-            <sends />
+            <sends>
+                <cmd id="DON" />
+                <cmd id="DOF" />
+            </sends>
             <accepts>
                 <cmd id="DON" />
                 <cmd id="DOF" />

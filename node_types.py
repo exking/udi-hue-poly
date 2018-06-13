@@ -252,6 +252,12 @@ class HueDimmLight(HueBase):
         self._updateInfo()
 
     def _updateInfo(self):
+        if self.on is not None:
+            if self.on != self.data['state']['on']:
+                if self.data['state']['on']:
+                    self.reportCmd('DON')
+                else:
+                    self.reportCmd('DOF')
         self.on = self.data['state']['on']
         self.brightness = self.data['state']['bri']
         self.st = bri2st(self.data['state']['bri'])
