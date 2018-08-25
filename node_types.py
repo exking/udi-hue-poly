@@ -448,7 +448,13 @@ class HueGroup(HueBase):
             self.setDriver('GV6', self.devcount)
 
         self.on = self.data['state']['any_on']
-        self.all_on = self.data['state']['all_on']
+        if self.all_on != self.data['state']['all_on']:
+            if self.data['state']['all_on']:
+                self.reportCmd('DON')
+                self.all_on = True
+            else:
+                self.reportCmd('DOF')
+                self.all_on = False
 
         self.brightness = self.data['action']['bri']
         self.setDriver('GV5', self.brightness)
