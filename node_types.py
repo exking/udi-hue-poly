@@ -21,6 +21,7 @@ class HueBase(polyglot.Node):
     def __init__(self, controller, primary, address, name, element_id, element):
         super().__init__(controller, primary, address, name)
         self.name = name
+        self.address = address
         self.element_id = int(element_id)
         self.data = element
         self.on = None
@@ -53,6 +54,9 @@ class HueBase(polyglot.Node):
                 self.brightness = self._validateBri(int(val))
                 hue_command['bri'] = self.brightness
                 self.setDriver('GV5', self.brightness)
+            elif cmd == 'DON' and self.on and self.controller.ignore_second_on:
+                ''' Ignore DON command if bulb is On already '''
+                LOGGER.info('Ignoring On command, {} is already On'.format(self.name))
             elif cmd == 'DFON' or self.on:
                 ''' Go to full brightness on Fast On or if already On '''
                 self.brightness = 254
@@ -248,7 +252,12 @@ class HueDimmLight(HueBase):
     def updateInfo(self):
         if self.controller.lights is None:
             return False
-        self.data = self.controller.lights[str(self.element_id)]
+        try:
+            self.data = self.controller.lights[str(self.element_id)]
+        except KeyError:
+            LOGGER.error('Node {} no longer exists'.format(self.address))
+            self.controller.delNode(self.address)
+            return False
         self._updateInfo()
 
     def _updateInfo(self):

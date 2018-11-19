@@ -29,6 +29,7 @@ class Control(polyglot.Controller):
         self.groups = None
         self.bridge_ip = None
         self.bridge_user = None
+        self.ignore_second_on = False
         LOGGER.info('Started Hue Protocol')
                         
     def start(self):
@@ -36,6 +37,9 @@ class Control(polyglot.Controller):
         # define nodes for settings
         if 'debug' not in self.polyConfig['customParams']:
             LOGGER.setLevel(logging.INFO)
+        if 'ignore_second_on' in self.polyConfig['customParams']:
+            LOGGER.debug('DON will be ignored if already on')
+            self.ignore_second_on = True
         self.connect()
         self.discover()
 
@@ -205,7 +209,7 @@ class Control(polyglot.Controller):
             return None
         return groups
 
-    drivers = [{ 'driver': 'ST', 'value': 0, 'uom': 2 }]
+    drivers = [{ 'driver': 'ST', 'value': 1, 'uom': 2 }]
     commands = {'DISCOVER': discover}
     id = 'HUEBR'
 
