@@ -190,7 +190,10 @@ class Control(polyinterface.Controller):
         LOGGER.info('Hub {} {} groups found. Checking status and adding to ISY if necessary.'.format(hub_idx, len(self.groups[hub_idx])))
 
         for group_id, data in self.groups[hub_idx].items():
-            address = 'huegrp'+group_id
+            if len(self.hub) > 1:
+                address = 'huegrp'+hub_idx.split('.')[-1]+group_id
+            else:
+                address = 'huegrp'+group_id
             if group_id == '0':
                 name = 'All Lights'
             else:
