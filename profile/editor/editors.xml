@@ -65,4 +65,9 @@
         <range uom="56" min="0" max="50" prec="0" step="1" />
     </editor>
 
+    <!-- Scene Selector -->
+    <editor id="HSCNSEL">
+        <range uom="25" subset="0-30" nls="HUE_SCENE" />
+    </editor>
+
 </editors>

@@ -564,6 +564,15 @@ class HueGroup(HueBase):
             return False
         super().setEffect(command)
 
+    def setHueScene(self, command):
+        requested_scene_id = int(command.get('value'))
+        for hue_scene in self.controller.scene_lookup:
+            if hue_scene['hub'] == self.hub_idx and hue_scene['group'] == self.element_id and hue_scene['idx'] == requested_scene_id:
+                LOGGER.info(f"{self.data['name']} requested scene: {hue_scene['name']} ({requested_scene_id}), hue scene id: {hue_scene['id']}")
+                return self._send_command({"scene": hue_scene['id']})
+        LOGGER.error(f"{self.data['name']} does not seem to have scene index {requested_scene_id}")
+        return False
+
     def _send_command(self, command, transtime=None, checkOn=True):
         if transtime is None:
             transtime = self.transitiontime
@@ -601,7 +610,7 @@ class HueGroup(HueBase):
                    'SET_COLOR': setColor, 'SET_HUE': setHue, 'SET_SAT': setSat,
                    'CLITEMP': setCt, 'SET_HSB': setColorHSB, 'SET_COLOR_RGB': setColorRGB,
                    'SET_COLOR_XY': setColorXY, 'SET_ALERT': HueBase.setAlert, 'SET_EFFECT': setEffect,
-                   'SET_CTBR': setCtBri
+                   'SET_CTBR': setCtBri, 'SET_HSCENE': setHueScene
                }
 
     id = 'HUE_GROUP'

@@ -332,6 +332,9 @@
                 <cmd id="SET_EFFECT">
                     <p id="" editor="HESEL" />
                 </cmd>
+                <cmd id="SET_HSCENE">
+                    <p id="" editor="HSCNSEL" />
+                </cmd>
             </accepts>
         </cmds>
     </nodeDef>

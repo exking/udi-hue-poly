@@ -28,6 +28,8 @@ class Control(polyinterface.Controller):
         self.hub = {}
         self.lights = {}
         self.groups = {}
+        self.scenes = {}
+        self.scene_lookup = []
         self.ignore_second_on = False
         LOGGER.info('Started Hue Protocol')
                         
@@ -143,6 +145,7 @@ class Control(polyinterface.Controller):
                 self.saveCustomData({'bridges': data })
 
     def discover(self, command=None):
+        self.scene_lookup = []
         for idx in self.hub.keys():
             self._discover(idx)
 
@@ -180,16 +183,21 @@ class Control(polyinterface.Controller):
                     self.addNode(HueDimmLight(self, self.address, address, name, lamp_id, data, hub_idx))
                 else:
                     LOGGER.info('Hub {} Found Unsupported {} Bulb: {}({})'.format(hub_idx, data['type'], name, address))
+
+        self.scenes[hub_idx] = self._get_scenes(hub_idx)
+        if not self.scenes[hub_idx]:
+            LOGGER.error('Hub {} Discover: Failed to read Scenes from the Hue Bridge'.format(hub_idx))
         
         self.groups[hub_idx] = self._get_groups(hub_idx)
         if not self.groups[hub_idx]:
             LOGGER.error('Hub {} Discover: Failed to read Groups from the Hue Bridge'.format(hub_idx))
             self.discovery = False
             return False
-        
+
         LOGGER.info('Hub {} {} groups found. Checking status and adding to ISY if necessary.'.format(hub_idx, len(self.groups[hub_idx])))
 
         for group_id, data in self.groups[hub_idx].items():
+            scene_idx = 0
             if len(self.hub) > 1:
                 address = 'huegrp'+hub_idx.split('.')[-1]+group_id
             else:
@@ -203,6 +211,13 @@ class Control(polyinterface.Controller):
                 if not address in self.nodes:
                     LOGGER.info("Hub {} Found {} {} with {} light(s)".format(hub_idx, data['type'], name, len(data['lights'])))
                     self.addNode(HueGroup(self, self.address, address, name, group_id, data, hub_idx))
+                    if self.scenes[hub_idx]:
+                        for scene_id, scene_data in self.scenes[hub_idx].items():
+                            if 'group' in scene_data:
+                                if scene_data['group'] == group_id:
+                                    self.scene_lookup.append({ "hub": hub_idx, "group": int(group_id), "idx": scene_idx, "id": scene_id, "name": scene_data['name']})
+                                    LOGGER.debug(f"Hub {hub_idx} {data['type']} {name} {scene_data['type']} {scene_idx}:{scene_id}:{scene_data['name']}")
+                                    scene_idx += 1
             else:
                 if address in self.nodes:
                     LOGGER.info("Hub {} {} {} does not have any lights in it, removing a node".format(hub_idx, data['type'], name))
@@ -257,6 +272,23 @@ class Control(polyinterface.Controller):
                          "Network communication issue.")
             return None
         return groups
+
+    def _get_scenes(self, hub_idx):
+        if self.hub[hub_idx] is None:
+            return None
+        try:
+            scenes = self.hub[hub_idx].get_scene()
+        except BadStatusLine:
+            LOGGER.error('Hue Bridge returned bad status line.')
+            return None
+        except phue.PhueRequestTimeout:
+            LOGGER.error('Timed out trying to connect to Hue Bridge.')
+            return None
+        except socket.error:
+            LOGGER.error("Can't contact Hue Bridge. " +
+                         "Network communication issue.")
+            return None
+        return scenes
 
     drivers = [{ 'driver': 'ST', 'value': 1, 'uom': 2 }]
     commands = {'DISCOVER': discover}
