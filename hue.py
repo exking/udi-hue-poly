@@ -232,8 +232,12 @@ class Control(polyinterface.Controller):
             return True
         self.lights[hub_idx] = self._get_lights(hub_idx)
         self.groups[hub_idx] = self._get_groups(hub_idx)
-        for node in self.nodes:
-            self.nodes[node].updateInfo()
+        try:
+            for node in self.nodes:
+                self.nodes[node].updateInfo()
+        except Exception as ex:
+            LOGGER.error(f'Exception during {hub_idx} nodes update: {ex}')
+            return False
         return True
 
     def updateInfo(self):
@@ -254,6 +258,9 @@ class Control(polyinterface.Controller):
             LOGGER.error("Can't contact Hue Bridge. " +
                          "Network communication issue.")
             return None
+        except Exception as ex:
+            LOGGER.error(f'Hue bridge exception {ex}')
+            return None
         return lights
 
     def _get_groups(self, hub_idx):
@@ -271,6 +278,9 @@ class Control(polyinterface.Controller):
             LOGGER.error("Can't contact Hue Bridge. " +
                          "Network communication issue.")
             return None
+        except Exception as ex:
+            LOGGER.error(f'Hue bridge exception {ex}')
+            return None
         return groups
 
     def _get_scenes(self, hub_idx):
@@ -287,6 +297,9 @@ class Control(polyinterface.Controller):
         except socket.error:
             LOGGER.error("Can't contact Hue Bridge. " +
                          "Network communication issue.")
+            return None
+        except Exception as ex:
+            LOGGER.error(f'Hue bridge exception {ex}')
             return None
         return scenes
 
