@@ -216,7 +216,7 @@ class Control(polyinterface.Controller):
                             if 'group' in scene_data:
                                 if scene_data['group'] == group_id:
                                     self.scene_lookup.append({ "hub": hub_idx, "group": int(group_id), "idx": scene_idx, "id": scene_id, "name": scene_data['name']})
-                                    LOGGER.debug(f"Hub {hub_idx} {data['type']} {name} {scene_data['type']} {scene_idx}:{scene_id}:{scene_data['name']}")
+                                    LOGGER.info(f"Hub {hub_idx} {data['type']} {name} {scene_data['type']} {scene_idx}:{scene_id}:{scene_data['name']}")
                                     scene_idx += 1
             else:
                 if address in self.nodes:
