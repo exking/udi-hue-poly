@@ -673,10 +673,10 @@ class Bridge(object):
 
         """ Get the bridge ip address from the meethue.com nupnp api """
 
-        connection = httplib.HTTPSConnection('www.meethue.com')
-        connection.request('GET', '/api/nupnp')
+        connection = httplib.HTTPSConnection('discovery.meethue.com')
+        connection.request('GET', '/')
 
-        LOGGER.info('Connecting to meethue.com/api/nupnp')
+        LOGGER.info('Connecting to discovery.meethue.com/')
 
         result = connection.getresponse()
 
