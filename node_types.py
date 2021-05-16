@@ -466,7 +466,11 @@ class HueGroup(HueBase):
                 self.reportCmd('DOF')
                 self.all_on = False
 
-        self.brightness = self.data['action']['bri']
+        try:
+            self.brightness = self.data['action']['bri']
+        except KeyError:
+            LOGGER.error(f"{self.data['type']} {self.data['name']} did not return brighness, ignoring...")
+            return False
         self.setDriver('GV5', self.brightness)
 
         self.st = bri2st(self.data['action']['bri'])
