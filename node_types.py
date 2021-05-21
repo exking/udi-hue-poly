@@ -439,7 +439,11 @@ class HueGroup(HueBase):
         self.data = self.controller.hub[self.hub_idx].get_group(self.element_id)
         if self.data is None:
             return False
-        self._updateInfo()
+        try:
+            self._updateInfo()
+        except Exception as ex:
+            LOGGER.error(f"{self.data['type']} {self.data['name']} exception during update: {ex}")
+            return False
         self.reportDrivers()
         
     def updateInfo(self):
@@ -466,11 +470,7 @@ class HueGroup(HueBase):
                 self.reportCmd('DOF')
                 self.all_on = False
 
-        try:
-            self.brightness = self.data['action']['bri']
-        except KeyError:
-            LOGGER.error(f"{self.data['type']} {self.data['name']} did not return brighness, ignoring...")
-            return False
+        self.brightness = self.data['action']['bri']
         self.setDriver('GV5', self.brightness)
 
         self.st = bri2st(self.data['action']['bri'])
